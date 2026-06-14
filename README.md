@@ -12,14 +12,28 @@ Automated ASP.NET Project Evaluation Platform — frontend for the PRN232 gradin
 | Language | TypeScript 5 |
 | Icons | Inline SVG (lucide-compatible paths) |
 
-## Quick start
+## Quick Start (Backend + Frontend)
+
+To test the full authentication flow, you must run the Dockerized backend stack alongside the frontend.
+
+### 1. Backend auth stack
+
+```bash
+cd ../prn232-ops
+docker compose --profile app up -d
+make smoke-app
+```
+
+### 2. Frontend real auth
 
 ```bash
 # Install dependencies
 bun install
 
-# Copy local environment
-cp .env.example .env.local
+# Ensure environment is set to real auth
+# Create .env.local with:
+# NEXT_PUBLIC_API_URL=http://localhost:8080
+# NEXT_PUBLIC_USE_MOCK_AUTH=false
 
 # Start dev server
 bun run dev
@@ -37,9 +51,19 @@ Open [http://localhost:3000](http://localhost:3000).
 Copy `.env.example` to `.env.local` and adjust.
 
 **Never point `NEXT_PUBLIC_API_URL` at internal microservice ports directly.**
-All requests must go through the API Gateway.
+All requests must go through the API Gateway (port 8080).
 
 ## Auth modes
+
+### Real Identity Service (Default)
+
+```env
+NEXT_PUBLIC_API_URL=http://localhost:8080
+NEXT_PUBLIC_USE_MOCK_AUTH=false
+```
+
+This is the production default. All requests go through Caddy/API Gateway at port 8080. 
+The gateway forwards `/api/auth/*` and `/api/users/*` to the Identity Service.
 
 ### Mock auth (no backend required)
 
@@ -48,7 +72,9 @@ NEXT_PUBLIC_API_URL=http://localhost:8080
 NEXT_PUBLIC_USE_MOCK_AUTH=true
 ```
 
-Three demo accounts are available on the Login page when mock mode is enabled:
+## Demo accounts
+
+The following demo accounts exist. They will autofill in the login page UI:
 
 | Role | Email | Password |
 |---|---|---|
@@ -56,27 +82,23 @@ Three demo accounts are available on the Login page when mock mode is enabled:
 | Lecturer | lecturer@ags.local | Password123! |
 | Admin | admin@ags.local | Password123! |
 
-Clicking a demo button fills email and password only. Submit the form to log in.
+## Troubleshooting
 
-### Real Identity Service (through API Gateway)
+### Gateway down
+**Symptom:** `fetch failed` or `API Gateway unavailable` error on login.
+**Fix:** Ensure the backend stack is running (`docker compose --profile app up -d`). Verify Gateway health at `http://localhost:8080/health`.
 
-```env
-NEXT_PUBLIC_API_URL=http://localhost:8080
-NEXT_PUBLIC_USE_MOCK_AUTH=false
-```
+### Identity login fails
+**Symptom:** `INVALID_CREDENTIALS` or 401 on login.
+**Fix:** Ensure the database is seeded. Try restarting the identity container or running migrations. Verify the demo accounts match the backend seed data.
 
-This is the production default. All requests go through Caddy/API Gateway at port 8080.
+### Token expired/invalid
+**Symptom:** Immediate redirect to login after accessing dashboard.
+**Fix:** The JWT token expired. Log in again. We do not implement refresh tokens for this school project.
 
-### Real Identity Service before Gateway is ready
-
-If you want to test directly against the Identity Service before Caddy is configured:
-
-```env
-NEXT_PUBLIC_API_URL=http://localhost:<identity-service-port>
-NEXT_PUBLIC_USE_MOCK_AUTH=false
-```
-
-Document that this is a temporary config and revert to the Gateway URL for all other environments.
+### CORS issue
+**Symptom:** Browser console shows CORS errors when calling the API.
+**Fix:** Ensure you are calling the Gateway (`localhost:8080`) and NOT the Identity Service directly (`localhost:8081`). The Gateway handles CORS headers.
 
 ## Route map
 
@@ -136,23 +158,4 @@ interface ApiResponse<T> {
     details?: Record<string, string[]>;
   } | null;
 }
-```
-
-## Architecture
-
-```
-src/
-├── app/                  # Next.js App Router pages
-│   ├── (auth)/           # Login and register routes
-│   ├── student/          # Student area
-│   ├── lecturer/         # Lecturer area
-│   └── admin/            # Admin area
-├── components/
-│   ├── auth/             # ProtectedLayout
-│   ├── layout/           # DashboardShell, Sidebar, Topbar
-│   └── ui/               # Button, Input, Card, Badge, Alert, Skeleton
-└── lib/
-    ├── api/              # client.ts, auth-api.ts
-    ├── auth/             # auth-context.tsx, auth-storage.ts, role-utils.ts
-    └── types/            # api.ts
 ```
