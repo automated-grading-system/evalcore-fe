@@ -7,8 +7,6 @@ import type { Role } from "@/lib/types/api";
 
 // ============================================================
 // Sidebar — role-based navigation with active state.
-// Taste Skill: clean grouping, clear active indicator,
-// no noisy decorative elements.
 // ============================================================
 
 interface NavItem {
@@ -57,17 +55,23 @@ export function Sidebar({ role }: SidebarProps) {
   const navItems = NAV_BY_ROLE[role];
 
   return (
-    <aside className="flex w-56 shrink-0 flex-col border-r border-border bg-sidebar">
+    <aside className="hidden md:flex w-64 shrink-0 flex-col border-r border-zinc-800/60 bg-zinc-950/80">
       {/* Brand mark */}
-      <div className="flex h-14 items-center gap-2.5 border-b border-border px-4">
-        <div className="flex h-7 w-7 items-center justify-center rounded-md bg-foreground">
-          <span className="text-xs font-bold text-background">EC</span>
+      <div className="flex h-16 items-center gap-3 border-b border-zinc-800/60 px-6">
+        <div className="flex h-7 w-7 items-center justify-center rounded bg-zinc-100">
+          <span className="text-[10px] font-bold text-zinc-950">EC</span>
         </div>
-        <span className="text-sm font-semibold tracking-tight">EvalCore</span>
+        <span className="text-sm font-medium tracking-tight text-zinc-100">EvalCore</span>
       </div>
 
       {/* Nav */}
-      <nav className="flex flex-1 flex-col gap-0.5 p-2 pt-3">
+      <nav className="flex flex-1 flex-col gap-1 p-4">
+        <div className="mb-4 px-2">
+          <p className="text-[10px] font-mono font-medium text-zinc-500 uppercase tracking-widest">
+            {role} Dashboard
+          </p>
+        </div>
+        
         {navItems.map((item) => {
           const isActive =
             item.href === `/${role}`
@@ -79,13 +83,13 @@ export function Sidebar({ role }: SidebarProps) {
               key={item.href}
               href={item.href}
               className={cn(
-                "flex items-center gap-2.5 rounded-md px-2.5 py-1.5 text-sm transition-colors",
+                "flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors font-medium",
                 isActive
-                  ? "bg-accent text-accent-foreground font-medium"
-                  : "text-muted-foreground hover:bg-accent/50 hover:text-foreground",
+                  ? "bg-zinc-800/80 text-zinc-50"
+                  : "text-zinc-400 hover:bg-zinc-900/50 hover:text-zinc-100",
               )}
             >
-              <span className="size-4 shrink-0">{item.icon}</span>
+              <span className="size-4 shrink-0 opacity-80">{item.icon}</span>
               {item.label}
             </Link>
           );
@@ -95,11 +99,11 @@ export function Sidebar({ role }: SidebarProps) {
   );
 }
 
-// ---------- Minimal inline icons (lucide-react is already in package.json) ----------
+// ---------- Minimal inline icons ----------
 
 function GridIcon() {
   return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" className="size-full">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} strokeLinecap="round" strokeLinejoin="round" className="size-full">
       <rect x="3" y="3" width="7" height="7" rx="1" />
       <rect x="14" y="3" width="7" height="7" rx="1" />
       <rect x="3" y="14" width="7" height="7" rx="1" />
@@ -110,7 +114,7 @@ function GridIcon() {
 
 function BookIcon() {
   return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" className="size-full">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} strokeLinecap="round" strokeLinejoin="round" className="size-full">
       <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
       <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
     </svg>
@@ -119,7 +123,7 @@ function BookIcon() {
 
 function SearchIcon() {
   return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" className="size-full">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} strokeLinecap="round" strokeLinejoin="round" className="size-full">
       <circle cx="11" cy="11" r="8" />
       <path d="m21 21-4.35-4.35" />
     </svg>
@@ -128,7 +132,7 @@ function SearchIcon() {
 
 function FileIcon() {
   return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" className="size-full">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} strokeLinecap="round" strokeLinejoin="round" className="size-full">
       <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" />
       <polyline points="14 2 14 8 20 8" />
     </svg>
@@ -137,7 +141,7 @@ function FileIcon() {
 
 function CodeIcon() {
   return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" className="size-full">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} strokeLinecap="round" strokeLinejoin="round" className="size-full">
       <polyline points="16 18 22 12 16 6" />
       <polyline points="8 6 2 12 8 18" />
     </svg>
@@ -146,7 +150,7 @@ function CodeIcon() {
 
 function ChartIcon() {
   return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" className="size-full">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} strokeLinecap="round" strokeLinejoin="round" className="size-full">
       <line x1="18" y1="20" x2="18" y2="10" />
       <line x1="12" y1="20" x2="12" y2="4" />
       <line x1="6" y1="20" x2="6" y2="14" />
@@ -156,7 +160,7 @@ function ChartIcon() {
 
 function UsersIcon() {
   return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" className="size-full">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} strokeLinecap="round" strokeLinejoin="round" className="size-full">
       <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
       <circle cx="9" cy="7" r="4" />
       <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
@@ -167,7 +171,7 @@ function UsersIcon() {
 
 function ServerIcon() {
   return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" className="size-full">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} strokeLinecap="round" strokeLinejoin="round" className="size-full">
       <rect x="2" y="2" width="20" height="8" rx="2" ry="2" />
       <rect x="2" y="14" width="20" height="8" rx="2" ry="2" />
       <line x1="6" y1="6" x2="6.01" y2="6" />
@@ -178,7 +182,7 @@ function ServerIcon() {
 
 function TerminalIcon() {
   return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" className="size-full">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} strokeLinecap="round" strokeLinejoin="round" className="size-full">
       <polyline points="4 17 10 11 4 5" />
       <line x1="12" y1="19" x2="20" y2="19" />
     </svg>
