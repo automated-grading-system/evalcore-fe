@@ -8,6 +8,7 @@ import React, {
   useState,
 } from "react";
 import { useRouter } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
 
 import { login, register, getCurrentUser } from "@/lib/api/auth-api";
 import { authStorage } from "@/lib/auth/auth-storage";
@@ -45,6 +46,7 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter();
+  const queryClient = useQueryClient();
 
   const [state, setState] = useState<AuthState>({
     user: null,
@@ -102,6 +104,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const response = await login(request);
 
       authStorage.setToken(response.accessToken, response.expiresAt);
+      queryClient.clear();
 
       setState({
         user: response.user,
@@ -113,7 +116,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       router.push(getDashboardPath(response.user.role));
     },
-    [router],
+    [router, queryClient],
   );
 
   const handleRegister = useCallback(
@@ -133,6 +136,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const handleLogout = useCallback(() => {
     authStorage.clear();
+    queryClient.clear();
     setState({
       user: null,
       accessToken: null,
@@ -141,7 +145,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       isCheckingAuth: false,
     });
     router.push("/login");
-  }, [router]);
+  }, [router, queryClient]);
 
   return (
     <AuthContext.Provider

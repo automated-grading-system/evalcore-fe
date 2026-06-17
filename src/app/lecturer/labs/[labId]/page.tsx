@@ -1,14 +1,14 @@
-import { PlaceholderPage } from "@/components/layout/placeholder-page";
+import { LecturerLabDetailView } from "@/features/classes/components/lecturer-lab-detail-view";
 
-export default function LecturerLabDetailPage() {
-  return (
-    <PlaceholderPage
-      title="Lab Detail"
-      description="Configure lab requirements and Postman collection for automated evaluation."
-      endpoints={[
-        "GET /api/labs/{labId}",
-        "PUT /api/labs/{labId}",
-      ]}
-    />
-  );
+interface LecturerLabDetailPageProps {
+  params: Promise<{
+    labId: string;
+  }>;
+}
+
+export default async function LecturerLabDetailPage({
+  params,
+}: LecturerLabDetailPageProps) {
+  const { labId } = await params;
+  return <LecturerLabDetailView labId={labId} />;
 }

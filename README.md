@@ -10,13 +10,15 @@ Automated ASP.NET Project Evaluation Platform — frontend for the PRN232 gradin
 | Runtime | Bun |
 | UI | Tailwind CSS v4 + shadcn/ui (radix-nova) |
 | Language | TypeScript 5 |
-| Icons | Inline SVG (lucide-compatible paths) |
+| Icons | lucide-react + existing inline shell icons |
+| Server data | TanStack Query |
+| HTTP client | Axios |
 
 ## Quick Start (Backend + Frontend)
 
-To test the full authentication flow, you must run the Dockerized backend stack alongside the frontend.
+To test the full auth, class, and lab flows, run the Dockerized backend stack alongside the frontend. The backend must include OPS-004 Class Service and Lab Service routes through the API Gateway.
 
-### 1. Backend auth stack
+### 1. Backend app stack
 
 ```bash
 cd ../prn232-ops
@@ -24,22 +26,23 @@ docker compose --profile app up -d
 make smoke-app
 ```
 
-### 2. Frontend real auth
+### 2. Frontend
 
 ```bash
-# Install dependencies
 bun install
-
-# Ensure environment is set to real auth
-# Create .env.local with:
-# NEXT_PUBLIC_API_URL=http://localhost:8080
-# NEXT_PUBLIC_USE_MOCK_AUTH=false
-
-# Start dev server
 bun run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000).
+
+Use real Gateway-backed APIs with:
+
+```env
+NEXT_PUBLIC_API_URL=http://localhost:8080
+NEXT_PUBLIC_USE_MOCK_AUTH=false
+```
+
+The frontend must only call the Gateway on port 8080. It must not call Identity on 8081 or Class Service on 8082 directly.
 
 ## Environment variables
 
@@ -78,9 +81,21 @@ The following demo accounts exist. They will autofill in the login page UI:
 
 | Role | Email | Password |
 |---|---|---|
-| Student | student@ags.local | Password123! |
-| Lecturer | lecturer@ags.local | Password123! |
-| Admin | admin@ags.local | Password123! |
+| Student | [student@ags.local](mailto:student@ags.local) | Password123! |
+| Lecturer | [lecturer@ags.local](mailto:lecturer@ags.local) | Password123! |
+| Admin | [admin@ags.local](mailto:admin@ags.local) | Password123! |
+
+## Class and lab flow
+
+1. Lecturer creates a class from `/lecturer/classes/new`.
+2. Student searches for the class from `/student/classes/search` and joins it.
+3. Lecturer opens the class detail page and creates a lab.
+4. Frontend posts lab metadata through the Gateway.
+5. Frontend uploads the requirement PDF and Postman collection JSON directly to MinIO presigned URLs.
+6. Frontend completes lab assets through the Gateway.
+7. Student opens the joined class, sees active labs, and downloads only the requirement PDF.
+
+Students do not see the Postman collection download. Lecturer lab detail pages can download both requirement and collection assets.
 
 ## Troubleshooting
 
@@ -112,14 +127,16 @@ The following demo accounts exist. They will autofill in the login page UI:
 - `/student/classes` — Joined classes
 - `/student/classes/search` — Find and join classes
 - `/student/classes/[classId]` — Class detail
-- `/student/labs/[labId]` — Lab detail and submission
+- `/student/labs/[labId]` — Lab requirement detail
 - `/student/submissions` — Submission history
 - `/student/submissions/[submissionId]` — Result detail
 
 ### Lecturer (`/lecturer/**`)
 - `/lecturer` — Dashboard overview
 - `/lecturer/classes` — Class management
+- `/lecturer/classes/new` — Create class
 - `/lecturer/classes/[classId]` — Class detail
+- `/lecturer/classes/[classId]/labs/new` — Create lab and upload assets
 - `/lecturer/labs` — Lab management
 - `/lecturer/labs/[labId]` — Lab configuration
 - `/lecturer/labs/[labId]/submissions` — Submission queue
@@ -144,7 +161,8 @@ bun run format       # Prettier
 
 ## API contract
 
-All API calls use the central client at `src/lib/api/client.ts`.
+All Gateway API calls use the Axios client at `src/lib/api/client.ts`.
+Class and lab server data is accessed through TanStack Query hooks in `src/features/classes/hooks/use-classes.ts`.
 
 Response envelope:
 

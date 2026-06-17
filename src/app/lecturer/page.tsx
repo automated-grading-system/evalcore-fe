@@ -1,35 +1,109 @@
-import { PageHeader, StatsGrid, StatCard } from "@/components/layout/dashboard-shell";
+"use client";
 
-// ============================================================
-// Lecturer Dashboard Home
-// ============================================================
+import Link from "next/link";
+import { PlusIcon } from "lucide-react";
+
+import {
+  PageHeader,
+  StatCard,
+  StatsGrid,
+} from "@/components/layout/dashboard-shell";
+import { ApiErrorAlert } from "@/components/data/api-error-alert";
+import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
+import { ClassCard } from "@/features/classes/components/class-card";
+import { ClassEmptyState } from "@/features/classes/components/class-empty-state";
+import { useLecturerClasses } from "@/features/classes/hooks/use-classes";
 
 export default function LecturerDashboardPage() {
+  const classesQuery = useLecturerClasses({ page: 1, pageSize: 4 });
+
   return (
-    <div className="flex flex-col gap-8 max-w-5xl">
+    <div className="flex max-w-6xl flex-col gap-8">
       <PageHeader
         title="Overview"
-        description="Manage your classes, labs, and student evaluations."
-      />
+        description="Manage classes and lab assets for automated ASP.NET project evaluation."
+      >
+        <Button asChild>
+          <Link href="/lecturer/classes/new">
+            <PlusIcon className="size-4" />
+            New class
+          </Link>
+        </Button>
+      </PageHeader>
 
       <StatsGrid>
-        <StatCard label="Classes" value="—" note="No active classes" />
-        <StatCard label="Active Labs" value="—" note="No ongoing labs" />
-        <StatCard label="Pending Submissions" value="—" note="Queue is empty" />
-        <StatCard label="Average Score" value="—" note="No grades recorded" />
+        <StatCard
+          label="Classes"
+          value={classesQuery.data?.totalItems ?? "—"}
+          note={
+            classesQuery.isLoading
+              ? "Loading class data"
+              : "From Class Service"
+          }
+        />
+        <StatCard
+          label="Active Labs"
+          value="—"
+          note="Open a class to inspect labs"
+        />
+        <StatCard
+          label="Pending Assets"
+          value="—"
+          note="Tracked per class"
+        />
+        <StatCard
+          label="Submission Queue"
+          value="—"
+          note="Submission Service pending"
+        />
       </StatsGrid>
 
-      <div className="rounded-md border border-zinc-200/50 dark:border-zinc-800/50 bg-zinc-50/50 dark:bg-zinc-900/20 px-8 py-16 flex flex-col items-center gap-4 text-center">
-        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-zinc-100 dark:bg-zinc-800/50">
-          <span className="text-zinc-500 text-lg">📊</span>
+      {classesQuery.isError && <ApiErrorAlert error={classesQuery.error} />}
+
+      <section className="space-y-4">
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <h2 className="text-base font-medium text-zinc-100">
+              Recent classes
+            </h2>
+            <p className="mt-1 text-sm text-zinc-500">
+              Classes returned by the Gateway-backed Class Service.
+            </p>
+          </div>
+          <Button asChild variant="ghost" size="sm">
+            <Link href="/lecturer/classes">View all</Link>
+          </Button>
         </div>
-        <div>
-          <h3 className="text-base font-medium text-zinc-900 dark:text-zinc-100">Ready to start</h3>
-          <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400 max-w-sm">
-            Create a new class and configure your first lab with a Postman test collection to begin automated grading.
-          </p>
-        </div>
-      </div>
+
+        {classesQuery.isLoading && (
+          <div className="grid gap-3">
+            <Skeleton className="h-28 bg-zinc-900" />
+            <Skeleton className="h-28 bg-zinc-900" />
+          </div>
+        )}
+
+        {classesQuery.data && classesQuery.data.items.length > 0 && (
+          <div className="grid gap-3">
+            {classesQuery.data.items.map((classItem) => (
+              <ClassCard
+                key={classItem.id}
+                classItem={classItem}
+                href={`/lecturer/classes/${classItem.id}`}
+              />
+            ))}
+          </div>
+        )}
+
+        {classesQuery.data && classesQuery.data.items.length === 0 && (
+          <ClassEmptyState
+            title="No classes yet"
+            description="Create a class before assigning labs or enrolling students."
+            actionHref="/lecturer/classes/new"
+            actionLabel="Create class"
+          />
+        )}
+      </section>
     </div>
   );
 }
