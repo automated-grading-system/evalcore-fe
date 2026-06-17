@@ -1,168 +1,205 @@
-// ============================================================
-// Central API client for EvalCore frontend.
-//
-// - All requests go through NEXT_PUBLIC_API_URL (API Gateway).
-// - Attaches Bearer token from auth storage automatically.
-// - Parses ApiResponse<T> envelope; throws on success=false.
-// - Never import this from pages; use API modules instead.
-// ============================================================
+import axios, {
+  AxiosError,
+  type AxiosRequestConfig,
+  type AxiosResponse,
+} from "axios";
 
 import { authStorage } from "@/lib/auth/auth-storage";
-import type { ApiResponse } from "@/lib/types/api";
+import { ApiClientError } from "@/lib/api/errors";
+import type { ApiErrorPayload, ApiResponse } from "@/types/api";
 
-const BASE_URL =
+export const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") ??
   "http://localhost:8080";
 
-// ---------- Typed API error ----------
-
-export class ApiClientError extends Error {
-  public readonly code: string;
-  public readonly details?: Record<string, string[]>;
-  public readonly status?: number;
-
-  constructor(
-    code: string,
-    message: string,
-    details?: Record<string, string[]>,
-    status?: number,
-  ) {
-    super(message);
-    this.name = "ApiClientError";
-    this.code = code;
-    this.details = details;
-    this.status = status;
-  }
+function redirectToLogin(): void {
+  if (typeof window === "undefined") return;
+  if (window.location.pathname === "/login") return;
+  window.location.assign("/login");
 }
 
-// ---------- Request options ----------
-
-export interface RequestOptions {
-  headers?: Record<string, string>;
-  signal?: AbortSignal;
+function handleUnauthorized(): void {
+  authStorage.clear();
+  redirectToLogin();
 }
 
-// ---------- Internal helpers ----------
-
-function buildHeaders(extra?: Record<string, string>): Record<string, string> {
-  const headers: Record<string, string> = {
-    "Content-Type": "application/json",
-    Accept: "application/json",
-    ...extra,
-  };
-
-  const token = authStorage.getToken();
-  if (token) {
-    headers["Authorization"] = `Bearer ${token}`;
-  }
-
-  return headers;
+function isApiEnvelope<T>(body: unknown): body is ApiResponse<T> {
+  return (
+    typeof body === "object" &&
+    body !== null &&
+    "success" in body &&
+    typeof (body as { success?: unknown }).success === "boolean"
+  );
 }
 
-async function handleResponse<T>(res: Response): Promise<T> {
-  if (res.status === 204) {
+export function unwrapApiResponse<T>(
+  response: AxiosResponse<ApiResponse<T> | T>,
+): T {
+  if (response.status === 204) {
     return undefined as T;
   }
 
-  let body: ApiResponse<T>;
-  try {
-    body = await res.json();
-  } catch {
-    throw new ApiClientError(
-      "PARSE_ERROR",
-      "Server returned a non-JSON response.",
-      undefined,
-      res.status,
+  const body = response.data;
+
+  if (!isApiEnvelope<T>(body)) {
+    return body as T;
+  }
+
+  if (body.success) {
+    return body.data as T;
+  }
+
+  const error = body.error;
+  throw new ApiClientError(
+    error?.code ?? "UNKNOWN_ERROR",
+    error?.message ?? "An unexpected API error occurred.",
+    error?.details,
+    response.status,
+  );
+}
+
+function errorFromPayload(
+  payload: ApiErrorPayload | null | undefined,
+  status?: number,
+): ApiClientError {
+  return new ApiClientError(
+    payload?.code ?? "HTTP_ERROR",
+    payload?.message ?? "The server returned an error.",
+    payload?.details,
+    status,
+  );
+}
+
+function normalizeAxiosError(error: AxiosError): ApiClientError {
+  if (!error.response) {
+    return new ApiClientError(
+      "GATEWAY_UNAVAILABLE",
+      "API Gateway is unavailable. Make sure the Docker stack is running.",
     );
   }
 
-  if (res.status === 401) {
-    authStorage.clear();
-    throw new ApiClientError(
+  const status = error.response.status;
+  const data = error.response.data;
+
+  if (status === 401) {
+    handleUnauthorized();
+  }
+
+  if (isApiEnvelope<unknown>(data)) {
+    return errorFromPayload(data.error, status);
+  }
+
+  if (status === 401) {
+    return new ApiClientError(
       "UNAUTHORIZED",
       "Session expired. Please log in again.",
       undefined,
-      401,
+      status,
     );
   }
 
-  if (!body.success || body.data === null) {
-    const err = body.error;
-    throw new ApiClientError(
-      err?.code ?? "UNKNOWN_ERROR",
-      err?.message ?? "An unexpected error occurred.",
-      err?.details,
-      res.status,
+  if (status === 403) {
+    return new ApiClientError(
+      "FORBIDDEN",
+      "You do not have permission to access this resource.",
+      undefined,
+      status,
     );
   }
 
-  return body.data as T;
+  return new ApiClientError(
+    "HTTP_ERROR",
+    "The server returned an unexpected response.",
+    undefined,
+    status,
+  );
 }
 
-// ---------- Public helpers ----------
+export function normalizeApiError(error: unknown): ApiClientError {
+  if (error instanceof ApiClientError) {
+    if (error.status === 401 || error.code === "UNAUTHORIZED") {
+      handleUnauthorized();
+    }
+    return error;
+  }
 
-export async function apiGet<T>(
-  path: string,
-  options?: RequestOptions,
+  if (axios.isAxiosError(error)) {
+    return normalizeAxiosError(error);
+  }
+
+  if (error instanceof Error) {
+    return new ApiClientError("CLIENT_ERROR", error.message);
+  }
+
+  return new ApiClientError(
+    "UNKNOWN_ERROR",
+    "An unexpected error occurred. Please try again.",
+  );
+}
+
+export const gatewayClient = axios.create({
+  baseURL: API_BASE_URL,
+  headers: {
+    Accept: "application/json",
+    "Content-Type": "application/json",
+  },
+});
+
+gatewayClient.interceptors.request.use((config) => {
+  const token = authStorage.getToken();
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
+async function request<T>(
+  config: AxiosRequestConfig,
 ): Promise<T> {
-  const res = await fetch(`${BASE_URL}${path}`, {
-    method: "GET",
-    headers: buildHeaders(options?.headers),
-    signal: options?.signal,
-  });
-  return handleResponse<T>(res);
+  try {
+    const response = await gatewayClient.request<ApiResponse<T> | T>(config);
+    return unwrapApiResponse<T>(response);
+  } catch (error) {
+    throw normalizeApiError(error);
+  }
 }
 
-export async function apiPost<T>(
-  path: string,
-  body?: unknown,
-  options?: RequestOptions,
+export function apiGet<T>(
+  url: string,
+  config?: AxiosRequestConfig,
 ): Promise<T> {
-  const res = await fetch(`${BASE_URL}${path}`, {
-    method: "POST",
-    headers: buildHeaders(options?.headers),
-    body: body !== undefined ? JSON.stringify(body) : undefined,
-    signal: options?.signal,
-  });
-  return handleResponse<T>(res);
+  return request<T>({ ...config, method: "GET", url });
 }
 
-export async function apiPut<T>(
-  path: string,
-  body?: unknown,
-  options?: RequestOptions,
+export function apiPost<T>(
+  url: string,
+  data?: unknown,
+  config?: AxiosRequestConfig,
 ): Promise<T> {
-  const res = await fetch(`${BASE_URL}${path}`, {
-    method: "PUT",
-    headers: buildHeaders(options?.headers),
-    body: body !== undefined ? JSON.stringify(body) : undefined,
-    signal: options?.signal,
-  });
-  return handleResponse<T>(res);
+  return request<T>({ ...config, method: "POST", url, data });
 }
 
-export async function apiPatch<T>(
-  path: string,
-  body?: unknown,
-  options?: RequestOptions,
+export function apiPut<T>(
+  url: string,
+  data?: unknown,
+  config?: AxiosRequestConfig,
 ): Promise<T> {
-  const res = await fetch(`${BASE_URL}${path}`, {
-    method: "PATCH",
-    headers: buildHeaders(options?.headers),
-    body: body !== undefined ? JSON.stringify(body) : undefined,
-    signal: options?.signal,
-  });
-  return handleResponse<T>(res);
+  return request<T>({ ...config, method: "PUT", url, data });
 }
 
-export async function apiDelete<T>(
-  path: string,
-  options?: RequestOptions,
+export function apiPatch<T>(
+  url: string,
+  data?: unknown,
+  config?: AxiosRequestConfig,
 ): Promise<T> {
-  const res = await fetch(`${BASE_URL}${path}`, {
-    method: "DELETE",
-    headers: buildHeaders(options?.headers),
-    signal: options?.signal,
-  });
-  return handleResponse<T>(res);
+  return request<T>({ ...config, method: "PATCH", url, data });
 }
+
+export function apiDelete<T>(
+  url: string,
+  config?: AxiosRequestConfig,
+): Promise<T> {
+  return request<T>({ ...config, method: "DELETE", url });
+}
+
+export { ApiClientError } from "@/lib/api/errors";
