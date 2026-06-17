@@ -1,15 +1,14 @@
-import { PlaceholderPage } from "@/components/layout/placeholder-page";
+import { LecturerClassDetailView } from "@/features/classes/components/lecturer-class-detail-view";
 
-export default function LecturerClassDetailPage() {
-  return (
-    <PlaceholderPage
-      title="Class Detail"
-      description="Manage enrolled students, assign labs, and view class-level results."
-      endpoints={[
-        "GET /api/classes/{classId}",
-        "GET /api/classes/{classId}/students",
-        "POST /api/classes/{classId}/students",
-      ]}
-    />
-  );
+interface LecturerClassDetailPageProps {
+  params: Promise<{
+    classId: string;
+  }>;
+}
+
+export default async function LecturerClassDetailPage({
+  params,
+}: LecturerClassDetailPageProps) {
+  const { classId } = await params;
+  return <LecturerClassDetailView classId={classId} />;
 }
