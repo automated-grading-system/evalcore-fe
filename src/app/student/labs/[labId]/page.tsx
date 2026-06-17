@@ -1,14 +1,14 @@
-import { PlaceholderPage } from "@/components/layout/placeholder-page";
+import { StudentLabDetailView } from "@/features/classes/components/student-lab-detail-view";
 
-export default function StudentLabPage() {
-  return (
-    <PlaceholderPage
-      title="Lab Detail"
-      description="View lab instructions, requirements, and submit your project ZIP."
-      endpoints={[
-        "GET /api/labs/{labId}",
-        "POST /api/labs/{labId}/submissions",
-      ]}
-    />
-  );
+interface StudentLabDetailPageProps {
+  params: Promise<{
+    labId: string;
+  }>;
+}
+
+export default async function StudentLabDetailPage({
+  params,
+}: StudentLabDetailPageProps) {
+  const { labId } = await params;
+  return <StudentLabDetailView labId={labId} />;
 }
