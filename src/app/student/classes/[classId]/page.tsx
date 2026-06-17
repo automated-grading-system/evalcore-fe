@@ -1,14 +1,14 @@
-import { PlaceholderPage } from "@/components/layout/placeholder-page";
+import { StudentClassDetailView } from "@/features/classes/components/student-class-detail-view";
 
-export default function StudentClassDetailPage() {
-  return (
-    <PlaceholderPage
-      title="Class Detail"
-      description="View lab assignments and submission history for this class."
-      endpoints={[
-        "GET /api/classes/{classId}",
-        "GET /api/classes/{classId}/labs",
-      ]}
-    />
-  );
+interface StudentClassDetailPageProps {
+  params: Promise<{
+    classId: string;
+  }>;
+}
+
+export default async function StudentClassDetailPage({
+  params,
+}: StudentClassDetailPageProps) {
+  const { classId } = await params;
+  return <StudentClassDetailView classId={classId} />;
 }
