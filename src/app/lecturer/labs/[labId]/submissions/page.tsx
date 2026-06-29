@@ -1,13 +1,14 @@
-import { PlaceholderPage } from "@/components/layout/placeholder-page";
+import { LecturerLabSubmissionsView } from "@/features/submissions/components/lecturer-lab-submissions-view";
 
-export default function LecturerLabSubmissionsPage() {
-  return (
-    <PlaceholderPage
-      title="Submissions"
-      description="Review student project submissions for this lab."
-      endpoints={[
-        "GET /api/labs/{labId}/submissions",
-      ]}
-    />
-  );
+interface LecturerLabSubmissionsPageProps {
+  params: Promise<{
+    labId: string;
+  }>;
+}
+
+export default async function LecturerLabSubmissionsPage({
+  params,
+}: LecturerLabSubmissionsPageProps) {
+  const { labId } = await params;
+  return <LecturerLabSubmissionsView labId={labId} />;
 }

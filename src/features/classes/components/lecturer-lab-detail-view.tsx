@@ -18,6 +18,7 @@ import {
   useLabDetail,
   useRequirementUrl,
 } from "@/features/classes/hooks/use-classes";
+import { LecturerLabSubmissionsView } from "@/features/submissions/components/lecturer-lab-submissions-view";
 import { getApiErrorMessage } from "@/lib/api/errors";
 
 interface LecturerLabDetailViewProps {
@@ -166,6 +167,8 @@ export function LecturerLabDetailView({ labId }: LecturerLabDetailViewProps) {
           </div>
         </CardContent>
       </Card>
+
+      <LecturerLabSubmissionsView labId={labId} />
     </div>
   );
 }
