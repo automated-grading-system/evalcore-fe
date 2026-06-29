@@ -1,0 +1,120 @@
+import axios from "axios";
+
+import { apiGet, apiPost } from "@/lib/api/client";
+import { ApiClientError } from "@/lib/api/errors";
+import type { PagedResponse } from "@/types/api";
+import type {
+  CompleteSubmissionAssetsRequest,
+  CreateSubmissionRequest,
+  CreateSubmissionResponse,
+  SubmissionDto,
+  SubmissionSourceUrlDto,
+} from "@/types/submission";
+
+export interface SubmissionListParams {
+  page?: number;
+  pageSize?: number;
+}
+
+export type SubmissionUploadStep = "creating" | "uploading" | "completing";
+
+function pagingParams(params: SubmissionListParams = {}) {
+  return {
+    page: params.page ?? 1,
+    pageSize: params.pageSize ?? 20,
+  };
+}
+
+export function createSubmission(
+  labId: string,
+  payload: CreateSubmissionRequest,
+): Promise<CreateSubmissionResponse> {
+  return apiPost<CreateSubmissionResponse>(
+    `/api/labs/${labId}/submissions`,
+    payload,
+  );
+}
+
+export async function uploadSubmissionZip(
+  projectUploadUrl: string,
+  file: File,
+): Promise<void> {
+  try {
+    await axios.put(projectUploadUrl, file, {
+      headers: {
+        "Content-Type": file.type || "application/zip",
+      },
+    });
+  } catch (error) {
+    if (axios.isAxiosError(error) && !error.response) {
+      throw new ApiClientError(
+        "MINIO_CORS_BLOCKED",
+        "Browser upload to MinIO is blocked by CORS. Ops must verify MinIO CORS for http://localhost:3000 and http://localhost:5173.",
+      );
+    }
+
+    if (axios.isAxiosError(error) && error.response?.status === 403) {
+      throw new ApiClientError(
+        "SUBMISSION_UPLOAD_URL_EXPIRED",
+        "Upload URL expired. Please try again.",
+        undefined,
+        403,
+      );
+    }
+
+    throw new ApiClientError(
+      "SUBMISSION_STORAGE_UPLOAD_FAILED",
+      "Upload URL expired or storage bucket is unavailable. Please try again.",
+    );
+  }
+}
+
+export function completeSubmissionAssets(
+  submissionId: string,
+  payload: CompleteSubmissionAssetsRequest = { projectUploaded: true },
+): Promise<void> {
+  return apiPost<void>(
+    `/api/submissions/${submissionId}/assets/complete`,
+    payload,
+  );
+}
+
+export function getMySubmissions(
+  params: SubmissionListParams = {},
+): Promise<PagedResponse<SubmissionDto>> {
+  return apiGet<PagedResponse<SubmissionDto>>("/api/submissions/my", {
+    params: pagingParams(params),
+  });
+}
+
+export function getMySubmissionForLab(
+  labId: string,
+): Promise<SubmissionDto | null> {
+  return apiGet<SubmissionDto | null>(`/api/labs/${labId}/submissions/my`);
+}
+
+export function getLabSubmissions(
+  labId: string,
+  params: SubmissionListParams = {},
+): Promise<PagedResponse<SubmissionDto>> {
+  return apiGet<PagedResponse<SubmissionDto>>(
+    `/api/labs/${labId}/submissions`,
+    {
+      params: pagingParams(params),
+    },
+  );
+}
+
+export function getSubmissionDetail(
+  submissionId: string,
+): Promise<SubmissionDto> {
+  return apiGet<SubmissionDto>(`/api/submissions/${submissionId}`);
+}
+
+export function getSubmissionSourceUrl(
+  submissionId: string,
+): Promise<SubmissionSourceUrlDto> {
+  return apiGet<SubmissionSourceUrlDto>(
+    `/api/submissions/${submissionId}/assets/source`,
+  );
+}

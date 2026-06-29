@@ -40,6 +40,12 @@ const FRIENDLY_MESSAGES: Record<string, string> = {
   S3_PRESIGN_FAILED:
     "The server could not prepare the lab asset download. Please try again.",
   STUDENT_NOT_IN_CLASS: "You have not joined this class.",
+  SUBMISSION_INVALID_FILE_TYPE: "Please upload a .zip file.",
+  SUBMISSION_NOT_SUBMITTED: "Submission has not been completed yet.",
+  SUBMISSION_STORAGE_UPLOAD_FAILED:
+    "Upload URL expired or storage bucket is unavailable. Please try again.",
+  SUBMISSION_UPLOAD_URL_EXPIRED: "Upload URL expired. Please try again.",
+  VALIDATION_ERROR: "Please check the form and try again.",
   UNAUTHORIZED: "Session expired. Please log in again.",
 };
 
