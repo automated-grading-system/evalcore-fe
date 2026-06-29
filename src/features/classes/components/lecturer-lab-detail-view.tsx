@@ -89,10 +89,10 @@ export function LecturerLabDetailView({ labId }: LecturerLabDetailViewProps) {
         <ApiErrorAlert error={assetError} title="Asset request failed" />
       ) : null}
 
-      <Card className="border-zinc-800/70 bg-zinc-900/35">
+      <Card className="border-border/60 bg-card/60 shadow-sm">
         <CardContent className="grid gap-5 p-5 sm:grid-cols-3">
           <div>
-            <p className="font-mono text-[11px] uppercase tracking-wider text-zinc-500">
+            <p className="font-mono text-[11px] uppercase tracking-wider text-muted-foreground font-semibold">
               Status
             </p>
             <div className="mt-2">
@@ -100,27 +100,27 @@ export function LecturerLabDetailView({ labId }: LecturerLabDetailViewProps) {
             </div>
           </div>
           <div>
-            <p className="font-mono text-[11px] uppercase tracking-wider text-zinc-500">
+            <p className="font-mono text-[11px] uppercase tracking-wider text-muted-foreground font-semibold">
               Deadline
             </p>
-            <p className="mt-1 text-sm text-zinc-200">
+            <p className="mt-1 text-sm text-foreground font-medium">
               {formatDateTime(lab.deadline)}
             </p>
           </div>
           <div>
-            <p className="font-mono text-[11px] uppercase tracking-wider text-zinc-500">
+            <p className="font-mono text-[11px] uppercase tracking-wider text-muted-foreground font-semibold">
               Assets completed
             </p>
-            <p className="mt-1 text-sm text-zinc-200">
+            <p className="mt-1 text-sm text-foreground font-medium">
               {formatDateTime(lab.assetsCompletedAt)}
             </p>
           </div>
         </CardContent>
       </Card>
 
-      <Card className="border-zinc-800/70 bg-zinc-900/35">
+      <Card className="border-border/60 bg-card/60 shadow-sm">
         <CardHeader>
-          <CardTitle>Lab assets</CardTitle>
+          <CardTitle className="text-lg font-semibold tracking-tight">Lab assets</CardTitle>
         </CardHeader>
         <CardContent className="flex flex-col gap-3 sm:flex-row">
           <Button
@@ -144,24 +144,24 @@ export function LecturerLabDetailView({ labId }: LecturerLabDetailViewProps) {
         </CardContent>
       </Card>
 
-      <Card className="border-zinc-800/70 bg-zinc-950/45">
+      <Card className="border-border/60 bg-zinc-950/40">
         <CardHeader>
-          <CardTitle>Technical object keys</CardTitle>
+          <CardTitle className="text-lg font-semibold tracking-tight">Technical object keys</CardTitle>
         </CardHeader>
         <CardContent className="grid gap-4">
           <div>
-            <p className="font-mono text-[11px] uppercase tracking-wider text-zinc-500">
+            <p className="font-mono text-[11px] uppercase tracking-wider text-muted-foreground font-semibold">
               Requirement
             </p>
-            <p className="mt-1 break-all font-mono text-xs text-zinc-300">
+            <p className="mt-1 break-all font-mono text-xs text-foreground/80 font-medium">
               {lab.requirementObjectKey}
             </p>
           </div>
           <div>
-            <p className="font-mono text-[11px] uppercase tracking-wider text-zinc-500">
+            <p className="font-mono text-[11px] uppercase tracking-wider text-muted-foreground font-semibold">
               Collection
             </p>
-            <p className="mt-1 break-all font-mono text-xs text-zinc-300">
+            <p className="mt-1 break-all font-mono text-xs text-foreground/80 font-medium">
               {lab.collectionObjectKey}
             </p>
           </div>

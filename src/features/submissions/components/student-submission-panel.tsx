@@ -107,16 +107,16 @@ export function StudentSubmissionPanel({
   }
 
   return (
-    <Card className="border-zinc-800/70 bg-zinc-900/35">
+    <Card className="border-border/60 bg-card/60 shadow-sm">
       <CardHeader>
-        <CardTitle>Project submission</CardTitle>
-        <CardDescription>
+        <CardTitle className="text-xl font-semibold tracking-tight">Project submission</CardTitle>
+        <CardDescription className="text-muted-foreground">
           Upload your ASP.NET project as a ZIP archive.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-5">
         {submissionQuery.isLoading ? (
-          <Skeleton className="h-24 bg-zinc-950/70" />
+          <Skeleton className="h-24 bg-zinc-950/50" />
         ) : null}
 
         {submissionQuery.isError &&
@@ -128,9 +128,9 @@ export function StudentSubmissionPanel({
         ) : null}
 
         {existingSubmission ? (
-          <div className="grid gap-4 rounded-lg border border-zinc-800 bg-zinc-950/40 p-4 sm:grid-cols-4">
+          <div className="grid gap-4 rounded-xl border border-border/80 bg-zinc-950/50 p-5 sm:grid-cols-4 shadow-2xs">
             <div>
-              <p className="font-mono text-[11px] uppercase tracking-wider text-zinc-500">
+              <p className="font-mono text-[11px] uppercase tracking-wider text-muted-foreground font-semibold">
                 Status
               </p>
               <div className="mt-2">
@@ -138,26 +138,26 @@ export function StudentSubmissionPanel({
               </div>
             </div>
             <div>
-              <p className="font-mono text-[11px] uppercase tracking-wider text-zinc-500">
+              <p className="font-mono text-[11px] uppercase tracking-wider text-muted-foreground font-semibold">
                 Attempt
               </p>
-              <p className="mt-1 text-sm text-zinc-200">
+              <p className="mt-1 text-sm text-foreground font-medium">
                 {existingSubmission.attemptNo}
               </p>
             </div>
             <div>
-              <p className="font-mono text-[11px] uppercase tracking-wider text-zinc-500">
+              <p className="font-mono text-[11px] uppercase tracking-wider text-muted-foreground font-semibold">
                 File
               </p>
-              <p className="mt-1 break-all text-sm text-zinc-200">
+              <p className="mt-1 break-all text-sm text-foreground font-medium">
                 {existingSubmission.projectFileName}
               </p>
             </div>
             <div>
-              <p className="font-mono text-[11px] uppercase tracking-wider text-zinc-500">
+              <p className="font-mono text-[11px] uppercase tracking-wider text-muted-foreground font-semibold">
                 Updated
               </p>
-              <p className="mt-1 text-sm text-zinc-200">
+              <p className="mt-1 text-sm text-foreground font-medium">
                 {formatDateTime(
                   existingSubmission.submittedAt ??
                     existingSubmission.updatedAt,
@@ -166,7 +166,7 @@ export function StudentSubmissionPanel({
             </div>
           </div>
         ) : (
-          <p className="rounded-lg border border-zinc-800 bg-zinc-950/35 p-4 text-sm text-zinc-400">
+          <p className="rounded-xl border border-border/50 bg-zinc-950/30 p-4 text-sm text-muted-foreground text-center">
             No submission has been completed for this lab yet.
           </p>
         )}
@@ -191,7 +191,7 @@ export function StudentSubmissionPanel({
           />
 
           <div className="space-y-2">
-            <Label htmlFor="submission-notes" className="text-zinc-300">
+            <Label htmlFor="submission-notes" className="text-foreground/90 font-medium">
               Notes
             </Label>
             <Textarea
@@ -199,16 +199,17 @@ export function StudentSubmissionPanel({
               value={notes}
               disabled={disabled || isSubmitting}
               placeholder="Optional notes for your lecturer"
-              className="min-h-24 border-zinc-800 bg-zinc-950/40 text-zinc-100 placeholder:text-zinc-600"
+              className="min-h-24"
               onChange={(event) => setNotes(event.target.value)}
             />
           </div>
 
-          <div>
+          <div className="pt-2 flex justify-end">
             <Button
               type="button"
               disabled={disabled || isSubmitting}
               onClick={handleSubmit}
+              className="w-full sm:w-auto font-semibold px-6"
             >
               {buttonLabel}
             </Button>

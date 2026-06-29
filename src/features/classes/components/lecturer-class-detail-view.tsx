@@ -76,29 +76,29 @@ export function LecturerClassDetailView({
         </Button>
       </PageHeader>
 
-      <Card className="border-zinc-800/70 bg-zinc-900/35">
+      <Card className="border-border/60 bg-card/60 shadow-sm">
         <CardContent className="grid gap-4 p-5 sm:grid-cols-3">
           <div>
-            <p className="font-mono text-[11px] uppercase tracking-wider text-zinc-500">
+            <p className="font-mono text-[11px] uppercase tracking-wider text-muted-foreground font-semibold">
               Created
             </p>
-            <p className="mt-1 text-sm text-zinc-200">
+            <p className="mt-1 text-sm text-foreground font-medium">
               {formatDateTime(classItem.createdAt)}
             </p>
           </div>
           <div>
-            <p className="font-mono text-[11px] uppercase tracking-wider text-zinc-500">
+            <p className="font-mono text-[11px] uppercase tracking-wider text-muted-foreground font-semibold">
               Updated
             </p>
-            <p className="mt-1 text-sm text-zinc-200">
+            <p className="mt-1 text-sm text-foreground font-medium">
               {formatDateTime(classItem.updatedAt)}
             </p>
           </div>
           <div>
-            <p className="font-mono text-[11px] uppercase tracking-wider text-zinc-500">
+            <p className="font-mono text-[11px] uppercase tracking-wider text-muted-foreground font-semibold">
               Class id
             </p>
-            <p className="mt-1 truncate font-mono text-xs text-zinc-400">
+            <p className="mt-1 truncate font-mono text-xs text-muted-foreground">
               {classItem.id}
             </p>
           </div>
@@ -106,7 +106,7 @@ export function LecturerClassDetailView({
       </Card>
 
       <Tabs defaultValue="labs" className="gap-5">
-        <TabsList className="bg-zinc-900/80">
+        <TabsList className="bg-zinc-950/80 border border-border/40 p-1">
           <TabsTrigger value="labs">Labs</TabsTrigger>
           <TabsTrigger value="members">Members</TabsTrigger>
         </TabsList>
@@ -114,8 +114,8 @@ export function LecturerClassDetailView({
         <TabsContent value="labs" className="space-y-4">
           {labsQuery.isLoading && (
             <div className="grid gap-3">
-              <Skeleton className="h-28 bg-zinc-900" />
-              <Skeleton className="h-28 bg-zinc-900" />
+              <Skeleton className="h-28 bg-zinc-900/50" />
+              <Skeleton className="h-28 bg-zinc-900/50" />
             </div>
           )}
           {labsQuery.isError && <ApiErrorAlert error={labsQuery.error} />}
@@ -142,34 +142,34 @@ export function LecturerClassDetailView({
 
         <TabsContent value="members">
           {membersQuery.isLoading && (
-            <Skeleton className="h-64 bg-zinc-900" />
+            <Skeleton className="h-64 bg-zinc-900/50" />
           )}
           {membersQuery.isError && (
             <ApiErrorAlert error={membersQuery.error} />
           )}
           {membersQuery.data && membersQuery.data.items.length > 0 && (
-            <div className="overflow-hidden rounded-lg border border-zinc-800/70 bg-zinc-900/30">
+            <div className="overflow-hidden rounded-xl border border-border/60 bg-card/45 shadow-xs">
               <Table>
                 <TableHeader>
-                  <TableRow className="border-zinc-800/70 hover:bg-transparent">
-                    <TableHead className="text-zinc-400">Student</TableHead>
-                    <TableHead className="text-zinc-400">Email</TableHead>
-                    <TableHead className="text-zinc-400">Joined</TableHead>
+                  <TableRow className="border-border/80 bg-zinc-950/20 hover:bg-transparent">
+                    <TableHead className="font-semibold text-muted-foreground">Student</TableHead>
+                    <TableHead className="font-semibold text-muted-foreground">Email</TableHead>
+                    <TableHead className="font-semibold text-muted-foreground">Joined</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {membersQuery.data.items.map((member) => (
                     <TableRow
                       key={member.id}
-                      className="border-zinc-800/70 hover:bg-zinc-800/30"
+                      className="border-border/50 hover:bg-zinc-800/45 transition-colors"
                     >
-                      <TableCell className="font-medium text-zinc-100">
+                      <TableCell className="font-semibold text-foreground">
                         {member.studentName ?? member.studentId}
                       </TableCell>
-                      <TableCell className="text-zinc-400">
+                      <TableCell className="text-foreground/80 font-medium">
                         {member.studentEmail ?? "Not provided"}
                       </TableCell>
-                      <TableCell className="text-zinc-500">
+                      <TableCell className="text-muted-foreground text-xs">
                         {formatDateTime(member.joinedAt)}
                       </TableCell>
                     </TableRow>

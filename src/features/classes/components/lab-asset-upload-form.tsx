@@ -149,16 +149,16 @@ export function LabAssetUploadForm({ classId }: LabAssetUploadFormProps) {
   }
 
   return (
-    <Card className="max-w-3xl border-zinc-800/70 bg-zinc-900/35">
+    <Card className="max-w-3xl border-border/60 bg-card/60 shadow-sm">
       <CardHeader>
-        <CardTitle>Create lab</CardTitle>
+        <CardTitle className="text-xl font-semibold tracking-tight">Create lab</CardTitle>
       </CardHeader>
       <CardContent>
         <form className="space-y-6" onSubmit={handleSubmit}>
           {submitError ? <ApiErrorAlert error={submitError} /> : null}
 
           <div className="grid gap-2">
-            <Label htmlFor="lab-title">Title</Label>
+            <Label htmlFor="lab-title" className="text-foreground/90 font-medium">Title</Label>
             <Input
               id="lab-title"
               value={title}
@@ -168,12 +168,12 @@ export function LabAssetUploadForm({ classId }: LabAssetUploadFormProps) {
               aria-invalid={Boolean(errors.title)}
             />
             {errors.title && (
-              <p className="text-xs text-destructive">{errors.title}</p>
+              <p className="text-xs text-destructive font-medium">{errors.title}</p>
             )}
           </div>
 
           <div className="grid gap-2">
-            <Label htmlFor="lab-description">Description</Label>
+            <Label htmlFor="lab-description" className="text-foreground/90 font-medium">Description</Label>
             <Textarea
               id="lab-description"
               value={description}
@@ -185,7 +185,7 @@ export function LabAssetUploadForm({ classId }: LabAssetUploadFormProps) {
           </div>
 
           <div className="grid gap-2">
-            <Label htmlFor="lab-deadline">Deadline</Label>
+            <Label htmlFor="lab-deadline" className="text-foreground/90 font-medium">Deadline</Label>
             <Input
               id="lab-deadline"
               type="datetime-local"
@@ -195,7 +195,7 @@ export function LabAssetUploadForm({ classId }: LabAssetUploadFormProps) {
               aria-invalid={Boolean(errors.deadline)}
             />
             {errors.deadline && (
-              <p className="text-xs text-destructive">{errors.deadline}</p>
+              <p className="text-xs text-destructive font-medium">{errors.deadline}</p>
             )}
           </div>
 
@@ -221,12 +221,12 @@ export function LabAssetUploadForm({ classId }: LabAssetUploadFormProps) {
           </div>
 
           {flowStep !== "idle" && (
-            <div className="rounded-lg border border-zinc-800 bg-zinc-950/45 p-4">
+            <div className="rounded-xl border border-border/80 bg-zinc-950/50 p-4 shadow-2xs">
               <div className="mb-3 flex items-center justify-between gap-3">
-                <p className="text-sm font-medium text-zinc-100">
+                <p className="text-sm font-semibold text-foreground">
                   {STEP_LABELS[flowStep as Exclude<LabFlowStep, "idle">]}
                 </p>
-                <span className="font-mono text-xs text-zinc-500">
+                <span className="font-mono text-xs text-muted-foreground font-semibold">
                   {progress}%
                 </span>
               </div>

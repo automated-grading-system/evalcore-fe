@@ -19,12 +19,12 @@ export function ClassCard({
   children,
 }: ClassCardProps) {
   return (
-    <Card className="border-zinc-800/70 bg-zinc-900/35">
+    <Card className="border-border/60 bg-card/60 shadow-xs hover:border-border/100 hover:bg-card/85 transition-all duration-200">
       <CardContent className="flex flex-col gap-4 p-5 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0">
           <Link
             href={href}
-            className="text-base font-medium text-zinc-100 transition-colors hover:text-white"
+            className="text-base font-semibold text-foreground transition-colors hover:text-primary"
           >
             {classItem.name}
           </Link>

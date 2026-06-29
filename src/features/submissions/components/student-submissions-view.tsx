@@ -42,44 +42,44 @@ export function StudentSubmissionsView() {
       ) : null}
 
       {submissionsQuery.data ? (
-        <Card className="border-zinc-800/70 bg-zinc-900/35">
+        <Card className="border-border/60 bg-card/60 shadow-sm">
           <CardHeader>
-            <CardTitle>Recent submissions</CardTitle>
+            <CardTitle className="text-lg font-semibold tracking-tight">Recent submissions</CardTitle>
           </CardHeader>
           <CardContent>
             {submissionsQuery.data.items.length > 0 ? (
               <Table>
                 <TableHeader>
-                  <TableRow className="border-zinc-800">
-                    <TableHead>File</TableHead>
-                    <TableHead>Attempt</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Submitted</TableHead>
-                    <TableHead>Updated</TableHead>
+                  <TableRow className="border-border/80 bg-zinc-950/20 hover:bg-transparent">
+                    <TableHead className="font-semibold text-muted-foreground">File</TableHead>
+                    <TableHead className="font-semibold text-muted-foreground">Attempt</TableHead>
+                    <TableHead className="font-semibold text-muted-foreground">Status</TableHead>
+                    <TableHead className="font-semibold text-muted-foreground">Submitted</TableHead>
+                    <TableHead className="font-semibold text-muted-foreground">Updated</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {submissionsQuery.data.items.map((submission) => (
                     <TableRow
                       key={submission.id}
-                      className="border-zinc-800 hover:bg-zinc-900/80"
+                      className="border-border/50 hover:bg-zinc-800/45 transition-colors"
                     >
                       <TableCell className="max-w-72 whitespace-normal">
                         <Link
                           href={`/student/labs/${submission.labId}`}
-                          className="break-all text-zinc-100 hover:text-zinc-300"
+                          className="break-all text-sm font-medium text-foreground hover:text-primary transition-colors"
                         >
                           {submission.projectFileName}
                         </Link>
                       </TableCell>
-                      <TableCell>{submission.attemptNo}</TableCell>
+                      <TableCell className="text-foreground font-medium">{submission.attemptNo}</TableCell>
                       <TableCell>
                         <SubmissionStatusBadge status={submission.status} />
                       </TableCell>
-                      <TableCell>
+                      <TableCell className="text-muted-foreground text-xs">
                         {formatDateTime(submission.submittedAt)}
                       </TableCell>
-                      <TableCell>
+                      <TableCell className="text-muted-foreground text-xs">
                         {formatDateTime(submission.updatedAt)}
                       </TableCell>
                     </TableRow>
@@ -87,7 +87,7 @@ export function StudentSubmissionsView() {
                 </TableBody>
               </Table>
             ) : (
-              <p className="rounded-lg border border-zinc-800 bg-zinc-950/35 p-5 text-sm text-zinc-400">
+              <p className="rounded-xl border border-border/50 bg-zinc-950/30 p-6 text-sm text-muted-foreground text-center">
                 You have not submitted any project ZIP files yet.
               </p>
             )}

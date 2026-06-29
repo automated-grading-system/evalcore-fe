@@ -16,9 +16,9 @@ export function Topbar({ title }: TopbarProps) {
   const { user, logout } = useAuth();
 
   return (
-    <header className="flex h-16 shrink-0 items-center justify-between border-b border-zinc-800/60 bg-zinc-950/80 px-6 lg:px-10">
+    <header className="flex h-16 shrink-0 items-center justify-between border-b border-border/50 bg-background/50 backdrop-blur-md px-6 lg:px-10">
       {/* Page title / Breadcrumb area */}
-      <span className="text-sm font-medium text-zinc-300">
+      <span className="text-sm font-semibold tracking-tight text-foreground">
         {title ?? "Dashboard"}
       </span>
 
@@ -27,18 +27,18 @@ export function Topbar({ title }: TopbarProps) {
         {user && (
           <>
             <div className="flex items-center gap-3">
-              <span className="hidden text-sm font-medium text-zinc-300 sm:block">
+              <span className="hidden text-sm font-medium text-foreground sm:block">
                 {user.fullName}
               </span>
               <RoleBadge role={user.role} />
             </div>
-            <div className="h-4 w-px bg-zinc-800" />
+            <div className="h-4 w-px bg-border/60" />
             <Button
               variant="ghost"
               size="sm"
               onClick={logout}
               id="topbar-logout-btn"
-              className="text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800"
+              className="text-muted-foreground hover:text-foreground hover:bg-secondary/80 border border-transparent hover:border-border/30"
             >
               Sign out
             </Button>

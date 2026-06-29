@@ -71,8 +71,8 @@ export function StudentLabDetailView({ labId }: StudentLabDetailViewProps) {
             title="Lab restricted"
             description={getApiErrorMessage(labQuery.error)}
           />
-          <Card className="border-zinc-800/70 bg-zinc-900/35">
-            <CardContent className="p-5 text-sm leading-relaxed text-zinc-400">
+          <Card className="border-border/60 bg-card/60 shadow-sm">
+            <CardContent className="p-5 text-sm leading-relaxed text-muted-foreground">
               Your account cannot access this lab right now. Open the joined
               class page to see active labs available to you.
             </CardContent>
@@ -107,10 +107,10 @@ export function StudentLabDetailView({ labId }: StudentLabDetailViewProps) {
         />
       ) : null}
 
-      <Card className="border-zinc-800/70 bg-zinc-900/35">
+      <Card className="border-border/60 bg-card/60 shadow-sm">
         <CardContent className="grid gap-5 p-5 sm:grid-cols-3">
           <div>
-            <p className="font-mono text-[11px] uppercase tracking-wider text-zinc-500">
+            <p className="font-mono text-[11px] uppercase tracking-wider text-muted-foreground font-semibold">
               Status
             </p>
             <div className="mt-2">
@@ -118,18 +118,18 @@ export function StudentLabDetailView({ labId }: StudentLabDetailViewProps) {
             </div>
           </div>
           <div>
-            <p className="font-mono text-[11px] uppercase tracking-wider text-zinc-500">
+            <p className="font-mono text-[11px] uppercase tracking-wider text-muted-foreground font-semibold">
               Deadline
             </p>
-            <p className="mt-1 text-sm text-zinc-200">
+            <p className="mt-1 text-sm text-foreground font-medium">
               {formatDateTime(lab.deadline)}
             </p>
           </div>
           <div>
-            <p className="font-mono text-[11px] uppercase tracking-wider text-zinc-500">
+            <p className="font-mono text-[11px] uppercase tracking-wider text-muted-foreground font-semibold">
               Requirement
             </p>
-            <p className="mt-1 text-sm text-zinc-200">
+            <p className="mt-1 text-sm text-foreground font-medium">
               {isActive ? "Available" : "Not active yet"}
             </p>
           </div>

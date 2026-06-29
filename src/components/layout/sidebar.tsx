@@ -55,19 +55,19 @@ export function Sidebar({ role }: SidebarProps) {
   const navItems = NAV_BY_ROLE[role];
 
   return (
-    <aside className="hidden md:flex w-64 shrink-0 flex-col border-r border-zinc-800/60 bg-zinc-950/80">
+    <aside className="hidden md:flex w-64 shrink-0 flex-col border-r border-border/50 bg-background/50 backdrop-blur-md">
       {/* Brand mark */}
-      <div className="flex h-16 items-center gap-3 border-b border-zinc-800/60 px-6">
-        <div className="flex h-7 w-7 items-center justify-center rounded bg-zinc-100">
-          <span className="text-[10px] font-bold text-zinc-950">EC</span>
+      <div className="flex h-16 items-center gap-3 border-b border-border/50 px-6">
+        <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/15 border border-primary/20">
+          <span className="text-[10px] font-bold tracking-wider text-primary">EC</span>
         </div>
-        <span className="text-sm font-medium tracking-tight text-zinc-100">EvalCore</span>
+        <span className="text-sm font-semibold tracking-tight text-foreground">EvalCore</span>
       </div>
 
       {/* Nav */}
       <nav className="flex flex-1 flex-col gap-1 p-4">
         <div className="mb-4 px-2">
-          <p className="text-[10px] font-mono font-medium text-zinc-500 uppercase tracking-widest">
+          <p className="text-[10px] font-mono font-semibold text-muted-foreground uppercase tracking-widest">
             {role} Dashboard
           </p>
         </div>
@@ -83,13 +83,16 @@ export function Sidebar({ role }: SidebarProps) {
               key={item.href}
               href={item.href}
               className={cn(
-                "flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors font-medium",
+                "flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-all font-medium",
                 isActive
-                  ? "bg-zinc-800/80 text-zinc-50"
-                  : "text-zinc-400 hover:bg-zinc-900/50 hover:text-zinc-100",
+                  ? "bg-primary/10 text-primary font-semibold border border-primary/10 shadow-xs"
+                  : "text-muted-foreground hover:bg-zinc-900/50 hover:text-foreground",
               )}
             >
-              <span className="size-4 shrink-0 opacity-80">{item.icon}</span>
+              <span className={cn(
+                "size-4 shrink-0 transition-colors",
+                isActive ? "text-primary opacity-100" : "text-muted-foreground opacity-80 group-hover:text-foreground"
+              )}>{item.icon}</span>
               {item.label}
             </Link>
           );

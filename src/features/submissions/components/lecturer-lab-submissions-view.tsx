@@ -90,9 +90,9 @@ export function LecturerLabSubmissionsView({
       ) : null}
 
       {submissionsQuery.data ? (
-        <Card className="border-zinc-800/70 bg-zinc-900/35">
+        <Card className="border-border/60 bg-card/60 shadow-sm">
           <CardHeader>
-            <CardTitle>
+            <CardTitle className="text-lg font-semibold tracking-tight">
               Submissions ({submissionsQuery.data.totalItems})
             </CardTitle>
           </CardHeader>
@@ -100,34 +100,34 @@ export function LecturerLabSubmissionsView({
             {submissionsQuery.data.items.length > 0 ? (
               <Table>
                 <TableHeader>
-                  <TableRow className="border-zinc-800">
-                    <TableHead>Student</TableHead>
-                    <TableHead>Attempt</TableHead>
-                    <TableHead>File</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Created</TableHead>
-                    <TableHead>Submitted</TableHead>
-                    <TableHead className="text-right">Source</TableHead>
+                  <TableRow className="border-border/80 bg-zinc-950/20 hover:bg-transparent">
+                    <TableHead className="font-semibold text-muted-foreground">Student</TableHead>
+                    <TableHead className="font-semibold text-muted-foreground">Attempt</TableHead>
+                    <TableHead className="font-semibold text-muted-foreground">File</TableHead>
+                    <TableHead className="font-semibold text-muted-foreground">Status</TableHead>
+                    <TableHead className="font-semibold text-muted-foreground">Created</TableHead>
+                    <TableHead className="font-semibold text-muted-foreground">Submitted</TableHead>
+                    <TableHead className="text-right font-semibold text-muted-foreground">Source</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {submissionsQuery.data.items.map((submission) => (
                     <TableRow
                       key={submission.id}
-                      className="border-zinc-800 hover:bg-zinc-900/80"
+                      className="border-border/50 hover:bg-zinc-800/45 transition-colors"
                     >
-                      <TableCell>{submission.studentEmail}</TableCell>
-                      <TableCell>{submission.attemptNo}</TableCell>
-                      <TableCell className="max-w-72 whitespace-normal break-all">
+                      <TableCell className="text-foreground font-medium">{submission.studentEmail}</TableCell>
+                      <TableCell className="text-foreground font-medium">{submission.attemptNo}</TableCell>
+                      <TableCell className="max-w-72 whitespace-normal break-all font-mono text-xs text-foreground/80">
                         {submission.projectFileName}
                       </TableCell>
                       <TableCell>
                         <SubmissionStatusBadge status={submission.status} />
                       </TableCell>
-                      <TableCell>
+                      <TableCell className="text-muted-foreground text-xs">
                         {formatDateTime(submission.createdAt)}
                       </TableCell>
-                      <TableCell>
+                      <TableCell className="text-muted-foreground text-xs">
                         {formatDateTime(submission.submittedAt)}
                       </TableCell>
                       <TableCell className="text-right">
@@ -150,7 +150,7 @@ export function LecturerLabSubmissionsView({
                 </TableBody>
               </Table>
             ) : (
-              <p className="rounded-lg border border-zinc-800 bg-zinc-950/35 p-5 text-sm text-zinc-400">
+              <p className="rounded-xl border border-border/50 bg-zinc-950/30 p-6 text-sm text-muted-foreground text-center">
                 No student submissions have been completed for this lab yet.
               </p>
             )}
