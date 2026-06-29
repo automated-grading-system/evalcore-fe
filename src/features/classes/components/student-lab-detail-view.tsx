@@ -17,6 +17,7 @@ import {
   useLabDetail,
   useRequirementUrl,
 } from "@/features/classes/hooks/use-classes";
+import { StudentSubmissionPanel } from "@/features/submissions/components/student-submission-panel";
 import {
   getApiErrorMessage,
   isApiClientError,
@@ -154,6 +155,8 @@ export function StudentLabDetailView({ labId }: StudentLabDetailViewProps) {
           Download requirement PDF
         </Button>
       </div>
+
+      <StudentSubmissionPanel labId={labId} disabled={!isActive} />
     </div>
   );
 }
