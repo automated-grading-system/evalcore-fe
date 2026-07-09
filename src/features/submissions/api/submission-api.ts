@@ -61,7 +61,9 @@ export function getMySubmissions(
 export function getMySubmissionForLab(
   labId: string,
 ): Promise<SubmissionDto | null> {
-  return apiGet<SubmissionDto | null>(`/api/labs/${labId}/submissions/my`);
+  return apiGet<PagedResponse<SubmissionDto>>(
+    `/api/labs/${labId}/submissions/my`,
+  ).then((response) => response.items[0] ?? null);
 }
 
 export function getLabSubmissions(

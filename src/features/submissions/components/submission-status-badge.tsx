@@ -29,6 +29,11 @@ const STATUS_CLASSES: Record<string, string> = {
 export function SubmissionStatusBadge({
   status,
 }: SubmissionStatusBadgeProps) {
+  const label =
+    typeof status === "string" && status.length > 0
+      ? STATUS_LABELS[status] ?? status.replaceAll("_", " ")
+      : "Unknown";
+
   return (
     <Badge
       variant="outline"
@@ -38,7 +43,7 @@ export function SubmissionStatusBadge({
           "border-zinc-700 bg-zinc-800/60 text-zinc-300",
       )}
     >
-      {STATUS_LABELS[status] ?? status.replaceAll("_", " ")}
+      {label}
     </Badge>
   );
 }

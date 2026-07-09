@@ -70,7 +70,11 @@ export function StudentSubmissionPanel({
   const [submitError, setSubmitError] = useState<unknown>(null);
   const [step, setStep] = useState<SubmitStep>("idle");
 
-  const existingSubmission = submissionQuery.data ?? null;
+  const hasSubmissionStatusError =
+    submissionQuery.isError && !isNoSubmissionError(submissionQuery.error);
+  const existingSubmission = submissionQuery.isSuccess
+    ? submissionQuery.data
+    : null;
   const isSubmitting = submitMutation.isPending;
   const buttonLabel =
     step === "done"
@@ -119,15 +123,16 @@ export function StudentSubmissionPanel({
           <Skeleton className="h-24 bg-zinc-950/50" />
         ) : null}
 
-        {submissionQuery.isError &&
-        !isNoSubmissionError(submissionQuery.error) ? (
+        {hasSubmissionStatusError ? (
           <ApiErrorAlert
             error={submissionQuery.error}
             title="Submission status failed"
           />
         ) : null}
 
-        {existingSubmission ? (
+        {!submissionQuery.isLoading &&
+        !hasSubmissionStatusError &&
+        existingSubmission ? (
           <div className="grid gap-4 rounded-xl border border-border/80 bg-zinc-950/50 p-5 sm:grid-cols-4 shadow-2xs">
             <div>
               <p className="font-mono text-[11px] uppercase tracking-wider text-muted-foreground font-semibold">
@@ -165,11 +170,15 @@ export function StudentSubmissionPanel({
               </p>
             </div>
           </div>
-        ) : (
+        ) : null}
+
+        {!submissionQuery.isLoading &&
+        !hasSubmissionStatusError &&
+        !existingSubmission ? (
           <p className="rounded-xl border border-border/50 bg-zinc-950/30 p-4 text-sm text-muted-foreground text-center">
             No submission has been completed for this lab yet.
           </p>
-        )}
+        ) : null}
 
         {submitError ? (
           <ApiErrorAlert error={submitError} title="Submission failed" />
