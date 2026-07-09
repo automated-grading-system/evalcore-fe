@@ -1,7 +1,5 @@
-import axios from "axios";
-
 import { apiGet, apiPost } from "@/lib/api/client";
-import { ApiClientError } from "@/lib/api/errors";
+import { uploadToPresignedUrl } from "@/lib/api/presigned-upload";
 import type { PagedResponse } from "@/types/api";
 import type {
   CompleteSubmissionAssetsRequest,
@@ -39,34 +37,7 @@ export async function uploadSubmissionZip(
   projectUploadUrl: string,
   file: File,
 ): Promise<void> {
-  try {
-    await axios.put(projectUploadUrl, file, {
-      headers: {
-        "Content-Type": file.type || "application/zip",
-      },
-    });
-  } catch (error) {
-    if (axios.isAxiosError(error) && !error.response) {
-      throw new ApiClientError(
-        "MINIO_CORS_BLOCKED",
-        "Browser upload to MinIO is blocked by CORS. Ops must verify MinIO CORS for http://localhost:3000 and http://localhost:5173.",
-      );
-    }
-
-    if (axios.isAxiosError(error) && error.response?.status === 403) {
-      throw new ApiClientError(
-        "SUBMISSION_UPLOAD_URL_EXPIRED",
-        "Upload URL expired. Please try again.",
-        undefined,
-        403,
-      );
-    }
-
-    throw new ApiClientError(
-      "SUBMISSION_STORAGE_UPLOAD_FAILED",
-      "Upload URL expired or storage bucket is unavailable. Please try again.",
-    );
-  }
+  await uploadToPresignedUrl(projectUploadUrl, file);
 }
 
 export function completeSubmissionAssets(

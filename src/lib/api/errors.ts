@@ -39,6 +39,10 @@ const FRIENDLY_MESSAGES: Record<string, string> = {
   S3_OBJECT_NOT_FOUND: "The requested lab asset could not be found.",
   S3_PRESIGN_FAILED:
     "The server could not prepare the lab asset download. Please try again.",
+  PRESIGNED_UPLOAD_FAILED:
+    "Upload URL expired or storage bucket is unavailable. Please try again.",
+  PRESIGNED_UPLOAD_NETWORK_ERROR:
+    "Browser upload to storage failed. Please try again.",
   STUDENT_NOT_IN_CLASS: "You have not joined this class.",
   SUBMISSION_INVALID_FILE_TYPE: "Please upload a .zip file.",
   SUBMISSION_NOT_SUBMITTED: "Submission has not been completed yet.",

@@ -1,11 +1,10 @@
-import axios from "axios";
-
 import {
   apiDelete,
   apiGet,
   apiPost,
   apiPut,
 } from "@/lib/api/client";
+import { uploadToPresignedUrl } from "@/lib/api/presigned-upload";
 import type { PagedResponse } from "@/types/api";
 import type {
   ClassDto,
@@ -166,18 +165,14 @@ export async function uploadLabAssets(
   onStep?: (step: UploadStep) => void,
 ): Promise<void> {
   onStep?.("requirement");
-  await axios.put(upload.requirementUploadUrl, files.requirementFile, {
-    headers: {
-      "Content-Type":
-        files.requirementFile.type || "application/octet-stream",
-    },
-  });
+  await uploadToPresignedUrl(
+    upload.requirementUploadUrl,
+    files.requirementFile,
+  );
 
   onStep?.("collection");
-  await axios.put(upload.collectionUploadUrl, files.collectionFile, {
-    headers: {
-      "Content-Type":
-        files.collectionFile.type || "application/octet-stream",
-    },
-  });
+  await uploadToPresignedUrl(
+    upload.collectionUploadUrl,
+    files.collectionFile,
+  );
 }
