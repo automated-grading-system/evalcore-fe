@@ -14,6 +14,7 @@ import {
   type SubmissionListParams,
 } from "@/features/submissions/api/submission-api";
 import { submissionQueryKeys } from "@/features/submissions/api/submission-query-keys";
+import { evaluationQueryKeys } from "@/features/evaluations/api/evaluation-query-keys";
 import type {
   CreateSubmissionRequest,
   SubmissionDto,
@@ -122,6 +123,9 @@ export function useSubmitSubmissionZip(labId: string) {
       });
       queryClient.invalidateQueries({
         queryKey: submissionQueryKeys.labRoot(labId),
+      });
+      queryClient.invalidateQueries({
+        queryKey: evaluationQueryKeys.latestForSubmission(submission.id),
       });
     },
   });

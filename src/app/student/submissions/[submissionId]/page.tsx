@@ -1,14 +1,12 @@
-import { PlaceholderPage } from "@/components/layout/placeholder-page";
+import { StudentSubmissionDetailView } from "@/features/submissions/components/student-submission-detail-view";
 
-export default function StudentSubmissionDetailPage() {
-  return (
-    <PlaceholderPage
-      title="Submission Detail"
-      description="Detailed evaluation results, test logs, and score breakdown."
-      endpoints={[
-        "GET /api/submissions/{submissionId}",
-        "GET /api/evaluations/submissions/{submissionId}",
-      ]}
-    />
-  );
+interface StudentSubmissionDetailPageProps {
+  params: Promise<{ submissionId: string }>;
+}
+
+export default async function StudentSubmissionDetailPage({
+  params,
+}: StudentSubmissionDetailPageProps) {
+  const { submissionId } = await params;
+  return <StudentSubmissionDetailView submissionId={submissionId} />;
 }

@@ -18,6 +18,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { FileDropField } from "@/features/classes/components/file-drop-field";
 import { formatDateTime } from "@/features/classes/components/formatters";
 import { SubmissionStatusBadge } from "@/features/submissions/components/submission-status-badge";
+import { EvaluationCard } from "@/features/evaluations/components/evaluation-card";
 import {
   useMySubmissionForLab,
   useSubmitSubmissionZip,
@@ -133,43 +134,46 @@ export function StudentSubmissionPanel({
         {!submissionQuery.isLoading &&
         !hasSubmissionStatusError &&
         existingSubmission ? (
-          <div className="grid gap-4 rounded-xl border border-border/80 bg-zinc-950/50 p-5 sm:grid-cols-4 shadow-2xs">
-            <div>
-              <p className="font-mono text-[11px] uppercase tracking-wider text-muted-foreground font-semibold">
-                Status
-              </p>
-              <div className="mt-2">
-                <SubmissionStatusBadge status={existingSubmission.status} />
+          <>
+            <div className="grid gap-4 rounded-xl border border-border/80 bg-zinc-950/50 p-5 shadow-2xs sm:grid-cols-4">
+              <div>
+                <p className="font-mono text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                  Status
+                </p>
+                <div className="mt-2">
+                  <SubmissionStatusBadge status={existingSubmission.status} />
+                </div>
+              </div>
+              <div>
+                <p className="font-mono text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                  Attempt
+                </p>
+                <p className="mt-1 text-sm font-medium text-foreground">
+                  {existingSubmission.attemptNo}
+                </p>
+              </div>
+              <div>
+                <p className="font-mono text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                  File
+                </p>
+                <p className="mt-1 break-all text-sm font-medium text-foreground">
+                  {existingSubmission.projectFileName}
+                </p>
+              </div>
+              <div>
+                <p className="font-mono text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                  Submitted
+                </p>
+                <p className="mt-1 text-sm font-medium text-foreground">
+                  {formatDateTime(
+                    existingSubmission.submittedAt ??
+                      existingSubmission.updatedAt,
+                  )}
+                </p>
               </div>
             </div>
-            <div>
-              <p className="font-mono text-[11px] uppercase tracking-wider text-muted-foreground font-semibold">
-                Attempt
-              </p>
-              <p className="mt-1 text-sm text-foreground font-medium">
-                {existingSubmission.attemptNo}
-              </p>
-            </div>
-            <div>
-              <p className="font-mono text-[11px] uppercase tracking-wider text-muted-foreground font-semibold">
-                File
-              </p>
-              <p className="mt-1 break-all text-sm text-foreground font-medium">
-                {existingSubmission.projectFileName}
-              </p>
-            </div>
-            <div>
-              <p className="font-mono text-[11px] uppercase tracking-wider text-muted-foreground font-semibold">
-                Updated
-              </p>
-              <p className="mt-1 text-sm text-foreground font-medium">
-                {formatDateTime(
-                  existingSubmission.submittedAt ??
-                    existingSubmission.updatedAt,
-                )}
-              </p>
-            </div>
-          </div>
+            <EvaluationCard submissionId={existingSubmission.id} />
+          </>
         ) : null}
 
         {!submissionQuery.isLoading &&

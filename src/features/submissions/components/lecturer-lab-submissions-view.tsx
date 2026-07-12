@@ -22,6 +22,9 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { formatDateTime } from "@/features/classes/components/formatters";
+import { EvaluationDetailsDialog } from "@/features/evaluations/components/evaluation-details-dialog";
+import { EvaluationStatusBadge } from "@/features/evaluations/components/evaluation-status-badge";
+import { useLatestEvaluationsForSubmissions } from "@/features/evaluations/hooks/use-evaluations";
 import { SubmissionStatusBadge } from "@/features/submissions/components/submission-status-badge";
 import {
   useLabSubmissions,
@@ -44,6 +47,9 @@ export function LecturerLabSubmissionsView({
     page: 1,
     pageSize: 20,
   });
+  const evaluationQueries = useLatestEvaluationsForSubmissions(
+    submissionsQuery.data?.items.map((submission) => submission.id) ?? [],
+  );
   const sourceUrlMutation = useSubmissionSourceUrl();
 
   async function handleDownload(submissionId: string) {
@@ -105,48 +111,92 @@ export function LecturerLabSubmissionsView({
                     <TableHead className="font-semibold text-muted-foreground">Attempt</TableHead>
                     <TableHead className="font-semibold text-muted-foreground">File</TableHead>
                     <TableHead className="font-semibold text-muted-foreground">Status</TableHead>
+                    <TableHead className="font-semibold text-muted-foreground">Evaluation</TableHead>
+                    <TableHead className="font-semibold text-muted-foreground">Score</TableHead>
+                    <TableHead className="font-semibold text-muted-foreground">Completed</TableHead>
                     <TableHead className="font-semibold text-muted-foreground">Created</TableHead>
                     <TableHead className="font-semibold text-muted-foreground">Submitted</TableHead>
+                    <TableHead className="text-right font-semibold text-muted-foreground">Details</TableHead>
                     <TableHead className="text-right font-semibold text-muted-foreground">Source</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {submissionsQuery.data.items.map((submission) => (
-                    <TableRow
-                      key={submission.id}
-                      className="border-border/50 hover:bg-zinc-800/45 transition-colors"
-                    >
-                      <TableCell className="text-foreground font-medium">{submission.studentEmail}</TableCell>
-                      <TableCell className="text-foreground font-medium">{submission.attemptNo}</TableCell>
-                      <TableCell className="max-w-72 whitespace-normal break-all font-mono text-xs text-foreground/80">
-                        {submission.projectFileName}
-                      </TableCell>
-                      <TableCell>
-                        <SubmissionStatusBadge status={submission.status} />
-                      </TableCell>
-                      <TableCell className="text-muted-foreground text-xs">
-                        {formatDateTime(submission.createdAt)}
-                      </TableCell>
-                      <TableCell className="text-muted-foreground text-xs">
-                        {formatDateTime(submission.submittedAt)}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <Button
-                          type="button"
-                          size="sm"
-                          variant="outline"
-                          disabled={
-                            sourceUrlMutation.isPending ||
-                            submission.status === "pending_assets"
-                          }
-                          onClick={() => handleDownload(submission.id)}
-                        >
-                          <DownloadIcon className="size-4" />
-                          Download
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))}
+                  {submissionsQuery.data.items.map((submission) => {
+                    const evaluationQuery = evaluationQueries[submission.id];
+                    const evaluation = evaluationQuery?.data;
+
+                    return (
+                      <TableRow
+                        key={submission.id}
+                        className="border-border/50 transition-colors hover:bg-zinc-800/45"
+                      >
+                        <TableCell className="font-medium text-foreground">
+                          {submission.studentEmail}
+                        </TableCell>
+                        <TableCell className="font-medium text-foreground">
+                          {submission.attemptNo}
+                        </TableCell>
+                        <TableCell className="max-w-72 break-all whitespace-normal font-mono text-xs text-foreground/80">
+                          {submission.projectFileName}
+                        </TableCell>
+                        <TableCell>
+                          <SubmissionStatusBadge status={submission.status} />
+                        </TableCell>
+                        <TableCell>
+                          {evaluationQuery?.isLoading ? (
+                            <span className="text-xs text-muted-foreground">Loading</span>
+                          ) : evaluation ? (
+                            <div className="space-y-1">
+                              <EvaluationStatusBadge status={evaluation.status} />
+                              {evaluation.status === "error" && evaluation.errorCode ? (
+                                <p className="font-mono text-[11px] text-red-300">
+                                  {evaluation.errorCode}
+                                </p>
+                              ) : null}
+                            </div>
+                          ) : (
+                            <span className="text-xs text-muted-foreground">Waiting</span>
+                          )}
+                        </TableCell>
+                        <TableCell className="font-medium text-foreground">
+                          {evaluation?.score !== null && evaluation?.score !== undefined
+                            ? `${evaluation.score} / ${evaluation.maxScore ?? "-"}`
+                            : "-"}
+                        </TableCell>
+                        <TableCell className="text-xs text-muted-foreground">
+                          {formatDateTime(evaluation?.completedAt)}
+                        </TableCell>
+                        <TableCell className="text-xs text-muted-foreground">
+                          {formatDateTime(submission.createdAt)}
+                        </TableCell>
+                        <TableCell className="text-xs text-muted-foreground">
+                          {formatDateTime(submission.submittedAt)}
+                        </TableCell>
+                        <TableCell className="text-right">
+                          {evaluation ? (
+                            <EvaluationDetailsDialog evaluation={evaluation} />
+                          ) : (
+                            <span className="text-xs text-muted-foreground">-</span>
+                          )}
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <Button
+                            type="button"
+                            size="sm"
+                            variant="outline"
+                            disabled={
+                              sourceUrlMutation.isPending ||
+                              submission.status === "pending_assets"
+                            }
+                            onClick={() => handleDownload(submission.id)}
+                          >
+                            <DownloadIcon className="size-4" />
+                            Download
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
                 </TableBody>
               </Table>
             ) : (

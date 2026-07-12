@@ -20,11 +20,16 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { formatDateTime } from "@/features/classes/components/formatters";
+import { EvaluationStatusBadge } from "@/features/evaluations/components/evaluation-status-badge";
+import { useLatestEvaluationsForSubmissions } from "@/features/evaluations/hooks/use-evaluations";
 import { SubmissionStatusBadge } from "@/features/submissions/components/submission-status-badge";
 import { useMySubmissions } from "@/features/submissions/hooks/use-submissions";
 
 export function StudentSubmissionsView() {
   const submissionsQuery = useMySubmissions({ page: 1, pageSize: 20 });
+  const evaluationQueries = useLatestEvaluationsForSubmissions(
+    submissionsQuery.data?.items.map((submission) => submission.id) ?? [],
+  );
 
   return (
     <div className="flex max-w-6xl flex-col gap-6">
@@ -54,36 +59,59 @@ export function StudentSubmissionsView() {
                     <TableHead className="font-semibold text-muted-foreground">File</TableHead>
                     <TableHead className="font-semibold text-muted-foreground">Attempt</TableHead>
                     <TableHead className="font-semibold text-muted-foreground">Status</TableHead>
+                    <TableHead className="font-semibold text-muted-foreground">Evaluation</TableHead>
+                    <TableHead className="font-semibold text-muted-foreground">Score</TableHead>
                     <TableHead className="font-semibold text-muted-foreground">Submitted</TableHead>
                     <TableHead className="font-semibold text-muted-foreground">Updated</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {submissionsQuery.data.items.map((submission) => (
-                    <TableRow
-                      key={submission.id}
-                      className="border-border/50 hover:bg-zinc-800/45 transition-colors"
-                    >
-                      <TableCell className="max-w-72 whitespace-normal">
-                        <Link
-                          href={`/student/labs/${submission.labId}`}
-                          className="break-all text-sm font-medium text-foreground hover:text-primary transition-colors"
-                        >
-                          {submission.projectFileName}
-                        </Link>
-                      </TableCell>
-                      <TableCell className="text-foreground font-medium">{submission.attemptNo}</TableCell>
-                      <TableCell>
-                        <SubmissionStatusBadge status={submission.status} />
-                      </TableCell>
-                      <TableCell className="text-muted-foreground text-xs">
-                        {formatDateTime(submission.submittedAt)}
-                      </TableCell>
-                      <TableCell className="text-muted-foreground text-xs">
-                        {formatDateTime(submission.updatedAt)}
-                      </TableCell>
-                    </TableRow>
-                  ))}
+                  {submissionsQuery.data.items.map((submission) => {
+                    const evaluationQuery = evaluationQueries[submission.id];
+                    const evaluation = evaluationQuery?.data;
+
+                    return (
+                      <TableRow
+                        key={submission.id}
+                        className="border-border/50 transition-colors hover:bg-zinc-800/45"
+                      >
+                        <TableCell className="max-w-72 whitespace-normal">
+                          <Link
+                            href={`/student/submissions/${submission.id}`}
+                            className="break-all text-sm font-medium text-foreground transition-colors hover:text-primary"
+                          >
+                            {submission.projectFileName}
+                          </Link>
+                        </TableCell>
+                        <TableCell className="font-medium text-foreground">
+                          {submission.attemptNo}
+                        </TableCell>
+                        <TableCell>
+                          <SubmissionStatusBadge status={submission.status} />
+                        </TableCell>
+                        <TableCell>
+                          {evaluationQuery?.isLoading ? (
+                            <span className="text-xs text-muted-foreground">Loading</span>
+                          ) : evaluation ? (
+                            <EvaluationStatusBadge status={evaluation.status} />
+                          ) : (
+                            <span className="text-xs text-muted-foreground">Waiting</span>
+                          )}
+                        </TableCell>
+                        <TableCell className="font-medium text-foreground">
+                          {evaluation?.score !== null && evaluation?.score !== undefined
+                            ? `${evaluation.score} / ${evaluation.maxScore ?? "-"}`
+                            : "-"}
+                        </TableCell>
+                        <TableCell className="text-xs text-muted-foreground">
+                          {formatDateTime(submission.submittedAt)}
+                        </TableCell>
+                        <TableCell className="text-xs text-muted-foreground">
+                          {formatDateTime(submission.updatedAt)}
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
                 </TableBody>
               </Table>
             ) : (
