@@ -4,15 +4,15 @@ Automated ASP.NET Project Evaluation Platform — frontend for the PRN232 gradin
 
 ## Stack
 
-| Tool | Version |
-|---|---|
-| Framework | Next.js 16.2.6 (App Router) |
-| Runtime | Bun |
-| UI | Tailwind CSS v4 + shadcn/ui (radix-nova) |
-| Language | TypeScript 5 |
-| Icons | lucide-react + existing inline shell icons |
-| Server data | TanStack Query |
-| HTTP client | Axios |
+| Tool        | Version                                    |
+| ----------- | ------------------------------------------ |
+| Framework   | Next.js 16.2.6 (App Router)                |
+| Runtime     | Bun                                        |
+| UI          | Tailwind CSS v4 + shadcn/ui (radix-nova)   |
+| Language    | TypeScript 5                               |
+| Icons       | lucide-react + existing inline shell icons |
+| Server data | TanStack Query                             |
+| HTTP client | Axios                                      |
 
 ## Quick Start (Backend + Frontend)
 
@@ -46,15 +46,29 @@ The frontend must only call the Gateway on port 8080. It must not call Identity 
 
 ## Environment variables
 
-| Variable | Default | Description |
-|---|---|---|
-| `NEXT_PUBLIC_API_URL` | `http://localhost:8080` | API Gateway base URL |
-| `NEXT_PUBLIC_USE_MOCK_AUTH` | `false` | Enable local mock auth |
+| Variable                    | Default                 | Description            |
+| --------------------------- | ----------------------- | ---------------------- |
+| `NEXT_PUBLIC_API_URL`       | `http://localhost:8080` | API Gateway base URL   |
+| `NEXT_PUBLIC_USE_MOCK_AUTH` | `false`                 | Enable local mock auth |
 
 Copy `.env.example` to `.env.local` and adjust.
 
 **Never point `NEXT_PUBLIC_API_URL` at internal microservice ports directly.**
 All requests must go through the API Gateway (port 8080).
+
+### Vercel production environment
+
+Set this in Vercel; do not use a localhost value in production:
+
+```env
+NEXT_PUBLIC_API_URL=https://api-prn232.dorriss.com
+```
+
+`https://api-prn232.dorriss.com` is the suggested public Cloudflare Tunnel URL
+for the Ops Gateway. The Gateway must allow the Vercel frontend origin
+`https://prn232.dorriss.com`. Presigned MinIO upload URLs must use a
+browser-reachable `S3_PUBLIC_ENDPOINT`, and MinIO CORS must also allow
+`https://prn232.dorriss.com`.
 
 ## Auth modes
 
@@ -65,7 +79,7 @@ NEXT_PUBLIC_API_URL=http://localhost:8080
 NEXT_PUBLIC_USE_MOCK_AUTH=false
 ```
 
-This is the production default. All requests go through Caddy/API Gateway at port 8080. 
+This is the production default. All requests go through Caddy/API Gateway at port 8080.
 The gateway forwards `/api/auth/*` and `/api/users/*` to the Identity Service.
 
 ### Mock auth (no backend required)
@@ -79,11 +93,11 @@ NEXT_PUBLIC_USE_MOCK_AUTH=true
 
 The following demo accounts exist. They will autofill in the login page UI:
 
-| Role | Email | Password |
-|---|---|---|
-| Student | [student@ags.local](mailto:student@ags.local) | Password123! |
+| Role     | Email                                           | Password     |
+| -------- | ----------------------------------------------- | ------------ |
+| Student  | [student@ags.local](mailto:student@ags.local)   | Password123! |
 | Lecturer | [lecturer@ags.local](mailto:lecturer@ags.local) | Password123! |
-| Admin | [admin@ags.local](mailto:admin@ags.local) | Password123! |
+| Admin    | [admin@ags.local](mailto:admin@ags.local)       | Password123! |
 
 ## Class and lab flow
 
@@ -100,29 +114,35 @@ Students do not see the Postman collection download. Lecturer lab detail pages c
 ## Troubleshooting
 
 ### Gateway down
+
 **Symptom:** `fetch failed` or `API Gateway unavailable` error on login.
 **Fix:** Ensure the backend stack is running (`docker compose --profile app up -d`). Verify Gateway health at `http://localhost:8080/health`.
 
 ### Identity login fails
+
 **Symptom:** `INVALID_CREDENTIALS` or 401 on login.
 **Fix:** Ensure the database is seeded. Try restarting the identity container or running migrations. Verify the demo accounts match the backend seed data.
 
 ### Token expired/invalid
+
 **Symptom:** Immediate redirect to login after accessing dashboard.
 **Fix:** The JWT token expired. Log in again. We do not implement refresh tokens for this school project.
 
 ### CORS issue
+
 **Symptom:** Browser console shows CORS errors when calling the API.
 **Fix:** Ensure you are calling the Gateway (`localhost:8080`) and NOT the Identity Service directly (`localhost:8081`). The Gateway handles CORS headers.
 
 ## Route map
 
 ### Public
+
 - `/` — Landing page
 - `/login` — Sign in
 - `/register` — Create account
 
 ### Student (`/student/**`)
+
 - `/student` — Dashboard overview
 - `/student/classes` — Joined classes
 - `/student/classes/search` — Find and join classes
@@ -132,6 +152,7 @@ Students do not see the Postman collection download. Lecturer lab detail pages c
 - `/student/submissions/[submissionId]` — Result detail
 
 ### Lecturer (`/lecturer/**`)
+
 - `/lecturer` — Dashboard overview
 - `/lecturer/classes` — Class management
 - `/lecturer/classes/new` — Create class
@@ -143,7 +164,12 @@ Students do not see the Postman collection download. Lecturer lab detail pages c
 - `/lecturer/labs/[labId]/results` — Graded results
 - `/lecturer/results` — Overall results
 
+### Shared authenticated route
+
+- `/notifications` — Personal evaluation and submission notifications
+
 ### Admin (`/admin/**`)
+
 - `/admin` — Dashboard overview
 - `/admin/users` — User management
 - `/admin/health` — Service health
