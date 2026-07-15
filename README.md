@@ -163,6 +163,7 @@ Students do not see the Postman collection download. Lecturer lab detail pages c
 - `/lecturer/labs/[labId]/submissions` — Submission queue
 - `/lecturer/labs/[labId]/results` — Graded results
 - `/lecturer/results` — Overall results
+- `/lecturer/live-grading` — Live evaluation queue and runner monitor
 
 ### Shared authenticated route
 

@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  ActivityIcon,
   BellIcon,
   BookOpenIcon,
   ChartNoAxesColumnIcon,
@@ -52,6 +53,11 @@ const NAV_BY_ROLE: Record<Role, NavItem[]> = {
       label: "Results",
       href: "/lecturer/results",
       icon: ChartNoAxesColumnIcon,
+    },
+    {
+      label: "Live grading",
+      href: "/lecturer/live-grading",
+      icon: ActivityIcon,
     },
     { label: "Notifications", href: "/notifications", icon: BellIcon },
   ],

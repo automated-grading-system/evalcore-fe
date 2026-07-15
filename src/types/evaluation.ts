@@ -6,10 +6,18 @@ export type EvaluationStatus =
   | "error"
   | (string & {});
 
+export type EvaluationStepStatus =
+  | "pending"
+  | "running"
+  | "passed"
+  | "failed"
+  | "skipped"
+  | (string & {});
+
 export interface EvaluationStepDto {
   id: string;
   stepName: string;
-  status: EvaluationStatus;
+  status: EvaluationStepStatus;
   startedAt?: string | null;
   completedAt?: string | null;
   exitCode?: number | null;
@@ -45,4 +53,46 @@ export interface EvaluationDto {
 export interface EvaluationReportUrlDto {
   reportUrl: string;
   expiresAt: string;
+}
+
+export interface EvaluationMonitorFilters {
+  classId?: string;
+  labId?: string;
+}
+
+export interface EvaluationMonitorOverviewDto {
+  total: number;
+  queued: number;
+  running: number;
+  passed: number;
+  failed: number;
+  error: number;
+  terminal: number;
+  activeSlots: number;
+  runnerConcurrency: number | null;
+  startedAt: string | null;
+  updatedAt: string | null;
+  throughputPerMinute: number | null;
+  estimatedRemainingMinutes: number | null;
+}
+
+export interface EvaluationMonitorRecentItemDto {
+  evaluationId: string;
+  submissionId: string;
+  studentId: string;
+  attemptNo: number;
+  status: EvaluationStatus;
+  score: number | null;
+  passed: boolean | null;
+  errorCode: string | null;
+  errorMessage: string | null;
+  createdAt: string;
+  startedAt: string | null;
+  completedAt: string | null;
+  currentStepName: string | null;
+  currentStepStatus: EvaluationStepStatus | null;
+}
+
+export interface EvaluationMonitorRecentParams extends EvaluationMonitorFilters {
+  limit?: number;
 }
