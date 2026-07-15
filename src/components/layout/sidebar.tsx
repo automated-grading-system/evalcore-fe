@@ -27,6 +27,7 @@ interface NavItem {
   label: string;
   href: string;
   icon: React.ComponentType<{ className?: string }>;
+  badge?: string;
 }
 
 const NAV_BY_ROLE: Record<Role, NavItem[]> = {
@@ -58,6 +59,7 @@ const NAV_BY_ROLE: Record<Role, NavItem[]> = {
       label: "Live grading",
       href: "/lecturer/live-grading",
       icon: ActivityIcon,
+      badge: "Live",
     },
     { label: "Notifications", href: "/notifications", icon: BellIcon },
   ],
@@ -151,7 +153,13 @@ export function Sidebar({ role, mobile, onClose }: SidebarProps) {
               <Icon
                 className={cn("size-4.5", active && "text-sidebar-primary")}
               />
-              {item.label}
+              <span>{item.label}</span>
+              {item.badge ? (
+                <span className="ml-auto inline-flex items-center gap-1 rounded-md border border-sidebar-primary/20 bg-sidebar-primary/10 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-[0.1em] text-sidebar-primary">
+                  <span className="size-1 rounded-full bg-current" />
+                  {item.badge}
+                </span>
+              ) : null}
             </Link>
           );
         })}

@@ -14,7 +14,6 @@ import {
   TerminalSquareIcon,
   TimerIcon,
   TriangleAlertIcon,
-  XCircleIcon,
 } from "lucide-react";
 import { useState, type ReactNode } from "react";
 
@@ -128,7 +127,7 @@ function formatStepName(value: string | null | undefined): string {
 
 function explainEvaluationError(errorCode: string | null | undefined) {
   if (errorCode === "APP_READINESS_FAILED") {
-    return "The submitted app did not become healthy before the sandbox startup window. Review the readiness and container logs below.";
+    return "The submitted app did not become healthy before the timeout. This usually means the app failed to start or its dependencies were not ready.";
   }
 
   return null;
@@ -146,35 +145,33 @@ function MonitorStatCard({
   tone = "neutral",
 }: {
   label: string;
-  value: number | null | undefined;
+  value: number | string | null | undefined;
   note: string;
   icon: ReactNode;
   tone?: StatTone;
 }) {
   return (
-    <Card className="overflow-hidden transition-colors duration-300">
-      <CardContent className="flex min-h-32 flex-col justify-between p-5">
-        <div className="flex items-start justify-between gap-3">
-          <p className="text-xs font-bold uppercase tracking-[0.12em] text-muted-foreground">
-            {label}
-          </p>
-          <span
-            className={cn(
-              "flex size-9 items-center justify-center rounded-lg",
-              STAT_TONE_CLASSES[tone],
-            )}
-          >
-            {icon}
-          </span>
-        </div>
-        <div className="mt-4">
-          <p className="text-3xl font-bold tracking-[-0.035em] text-foreground tabular-nums">
-            {formatCount(value)}
-          </p>
-          <p className="mt-1.5 text-xs text-muted-foreground">{note}</p>
-        </div>
-      </CardContent>
-    </Card>
+    <div className="flex min-h-32 flex-col justify-between rounded-xl border border-border/80 bg-card p-4 shadow-[0_1px_2px_rgba(15,23,42,0.04)] transition-colors duration-300">
+      <div className="flex items-start justify-between gap-3">
+        <p className="text-[11px] font-bold uppercase tracking-[0.11em] text-muted-foreground">
+          {label}
+        </p>
+        <span
+          className={cn(
+            "flex size-8 items-center justify-center rounded-lg",
+            STAT_TONE_CLASSES[tone],
+          )}
+        >
+          {icon}
+        </span>
+      </div>
+      <div className="mt-4">
+        <p className="text-2xl font-bold tracking-[-0.035em] text-foreground tabular-nums">
+          {typeof value === "number" ? formatCount(value) : (value ?? "—")}
+        </p>
+        <p className="mt-1.5 text-xs leading-4 text-muted-foreground">{note}</p>
+      </div>
+    </div>
   );
 }
 
@@ -186,6 +183,182 @@ function ScopeBadge({ label, value }: { label: string; value: string }) {
         {value}
       </span>
     </Badge>
+  );
+}
+
+function DemoNarrativeHero({
+  filters,
+  overview,
+  hasActiveWork,
+  hasMonitorError,
+}: {
+  filters: EvaluationMonitorFilters;
+  overview: EvaluationMonitorOverviewDto | undefined;
+  hasActiveWork: boolean;
+  hasMonitorError: boolean;
+}) {
+  const scopeIsFiltered = Boolean(filters.classId || filters.labId);
+  const failureTotal = overview ? overview.failed + overview.error : undefined;
+  const capacityValue = overview
+    ? overview.runnerConcurrency === null
+      ? formatCount(overview.activeSlots)
+      : `${formatCount(overview.activeSlots)} / ${formatCount(overview.runnerConcurrency)}`
+    : "—";
+  const capacityStatement = overview
+    ? overview.runnerConcurrency === null
+      ? `${formatCount(overview.activeSlots)} runner ${overview.activeSlots === 1 ? "slot is" : "slots are"} active now; the configured limit is unavailable.`
+      : `Only ${formatCount(overview.runnerConcurrency)} evaluations run at once.`
+    : "Loading the configured runner capacity…";
+
+  return (
+    <section className="overflow-hidden rounded-2xl border border-primary/20 bg-card shadow-[0_12px_36px_rgba(15,23,42,0.06)]">
+      <div className="h-1 bg-primary" />
+      <div className="grid gap-6 p-5 sm:p-6 lg:grid-cols-[minmax(0,1.45fr)_minmax(280px,0.55fr)] lg:items-end lg:p-8">
+        <div className="min-w-0">
+          <div className="flex flex-wrap items-center gap-2">
+            <Badge variant="secondary" className="gap-2 px-2.5 py-1">
+              <span
+                className="relative flex size-1.5 text-info"
+                aria-hidden="true"
+              >
+                {hasActiveWork && !hasMonitorError ? (
+                  <span className="absolute inline-flex size-full animate-ping rounded-full bg-current opacity-50 motion-reduce:animate-none" />
+                ) : null}
+                <span className="relative inline-flex size-1.5 rounded-full bg-current" />
+              </span>
+              {hasMonitorError
+                ? "Monitor error · polling reduced"
+                : !overview
+                  ? "Connecting · loading live data"
+                  : hasActiveWork
+                    ? "Live · refreshes every 1s"
+                    : "Settled · checks every 10s"}
+            </Badge>
+            {overview && overview.total > 0 ? (
+              <Badge variant="success" className="px-2.5 py-1">
+                Burst accepted
+              </Badge>
+            ) : null}
+          </div>
+          <h2 className="mt-5 max-w-3xl text-pretty text-2xl font-bold tracking-[-0.035em] text-foreground sm:text-3xl">
+            From burst submission to controlled execution
+          </h2>
+          <p className="mt-3 max-w-3xl text-pretty text-sm leading-6 text-muted-foreground sm:text-base sm:leading-7">
+            EvalCore accepts submissions immediately, puts evaluations into a
+            waiting room, and runs only a controlled number of isolated Docker
+            sandboxes at once.
+          </p>
+          <p className="mt-3 max-w-3xl text-sm leading-6 text-foreground/80">
+            For the demo script, each generated student submits one real ZIP.
+            The live count below reports submissions, not a derived unique
+            student count.
+          </p>
+        </div>
+
+        <div className="rounded-xl border border-primary/20 bg-primary/5 p-4 sm:p-5">
+          <p className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.12em] text-primary">
+            <ServerCogIcon className="size-4" /> Controlled concurrency
+          </p>
+          <p className="mt-3 text-xl font-bold tracking-tight text-foreground">
+            {capacityStatement}
+          </p>
+          <p className="mt-2 text-xs leading-5 text-muted-foreground">
+            RabbitMQ absorbs the burst while the Evaluation DB keeps accepted
+            work visible in the waiting room.
+          </p>
+        </div>
+      </div>
+
+      <div className="flex flex-wrap items-center gap-2 border-t border-border/70 bg-muted/25 px-5 py-3 sm:px-6 lg:px-8">
+        {filters.classId ? (
+          <ScopeBadge label="Class" value={filters.classId} />
+        ) : null}
+        {filters.labId ? (
+          <ScopeBadge label="Lab" value={filters.labId} />
+        ) : null}
+        {!scopeIsFiltered ? (
+          <Badge variant="outline" className="bg-card px-2.5 py-1">
+            All managed classes
+          </Badge>
+        ) : null}
+        <span className="ml-auto hidden items-center gap-1.5 text-xs text-muted-foreground sm:flex">
+          <InfoIcon className="size-3.5" /> Real evaluation records
+        </span>
+      </div>
+
+      <div className="grid gap-3 border-t border-border/70 bg-muted/25 p-3 sm:grid-cols-2 lg:grid-cols-4 lg:p-4 2xl:grid-cols-7">
+        <MonitorStatCard
+          label="Submissions accepted"
+          value={overview?.total}
+          note={
+            !overview
+              ? "Loading real submissions"
+              : overview.total > 0
+                ? "Burst accepted"
+                : "Waiting for the first submission"
+          }
+          icon={<Layers3Icon className="size-4" />}
+        />
+        <MonitorStatCard
+          label="Waiting room"
+          value={overview?.queued}
+          note="Persisted and ready for a runner"
+          icon={<Clock3Icon className="size-4" />}
+          tone="info"
+        />
+        <MonitorStatCard
+          label="Running now"
+          value={overview?.running}
+          note="Evaluations in this monitor scope"
+          icon={
+            <LoaderCircleIcon
+              className={cn(
+                "size-4",
+                overview?.running && "animate-spin motion-reduce:animate-none",
+              )}
+            />
+          }
+          tone="info"
+        />
+        <MonitorStatCard
+          label="Active runner slots"
+          value={capacityValue}
+          note={
+            !overview
+              ? "Loading runner capacity"
+              : overview.runnerConcurrency === null
+                ? "Global slots active now"
+                : "Global occupancy / capacity"
+          }
+          icon={<ServerCogIcon className="size-4" />}
+          tone="info"
+        />
+        <MonitorStatCard
+          label="Completed"
+          value={overview?.terminal}
+          note="All terminal evaluations"
+          icon={<ListChecksIcon className="size-4" />}
+        />
+        <MonitorStatCard
+          label="Passed"
+          value={overview?.passed}
+          note="Completed successfully"
+          icon={<CheckCircle2Icon className="size-4" />}
+          tone="success"
+        />
+        <MonitorStatCard
+          label="Failed / error"
+          value={failureTotal}
+          note={
+            overview
+              ? `${formatCount(overview.failed)} failed · ${formatCount(overview.error)} error`
+              : "Failures remain visible"
+          }
+          icon={<TriangleAlertIcon className="size-4" />}
+          tone={failureTotal ? "danger" : "neutral"}
+        />
+      </div>
+    </section>
   );
 }
 
@@ -214,11 +387,11 @@ function RunnerSlots({
       <CardHeader className="gap-3 sm:flex-row sm:items-start sm:justify-between sm:space-y-0">
         <div>
           <CardTitle className="flex items-center gap-2">
-            <ServerCogIcon className="size-4 text-primary" /> Runner slots
+            <ServerCogIcon className="size-4 text-primary" /> Runner capacity
           </CardTitle>
           <CardDescription className="mt-1.5">
-            Global occupied work across all labs compared with configured runner
-            capacity.
+            Global slot occupancy across all labs. Active sandboxes pulse while
+            they work.
           </CardDescription>
         </div>
         <div className="shrink-0 text-left sm:text-right">
@@ -266,24 +439,27 @@ function RunnerSlots({
                   className={cn(
                     "relative flex items-center gap-3 overflow-hidden rounded-xl border p-3 transition-all duration-300",
                     active
-                      ? "border-info/35 bg-info/5 shadow-sm"
+                      ? "border-info/35 bg-info/5 shadow-sm shadow-info/5"
                       : "border-border bg-muted/20",
                   )}
                   aria-label={`Runner slot ${index + 1}: ${active ? "active" : "available"}`}
                 >
                   {active ? (
-                    <span className="absolute inset-y-0 left-0 w-0.5 animate-pulse bg-info" />
+                    <span className="absolute inset-y-0 left-0 w-0.5 animate-pulse bg-info motion-reduce:animate-none" />
                   ) : null}
                   <span
                     className={cn(
-                      "flex size-8 shrink-0 items-center justify-center rounded-lg",
+                      "relative flex size-8 shrink-0 items-center justify-center rounded-lg",
                       active
                         ? "bg-info/10 text-info"
                         : "bg-muted text-muted-foreground",
                     )}
                   >
                     {active ? (
-                      <LoaderCircleIcon className="size-4 animate-spin" />
+                      <>
+                        <span className="absolute inset-0 animate-ping rounded-lg border border-info/35 opacity-50 motion-reduce:animate-none" />
+                        <LoaderCircleIcon className="size-4 animate-spin motion-reduce:animate-none" />
+                      </>
                     ) : (
                       <CircleDotIcon className="size-4" />
                     )}
@@ -339,7 +515,8 @@ function WaitingRoom({
             <ListChecksIcon className="size-4 text-primary" /> Waiting room
           </CardTitle>
           <CardDescription className="mt-1.5">
-            Recently accepted evaluations still waiting for a runner.
+            Database-backed work accepted immediately and waiting safely for a
+            runner.
           </CardDescription>
         </div>
         <div className="shrink-0 text-left sm:text-right">
@@ -370,7 +547,7 @@ function WaitingRoom({
               <button
                 key={item.evaluationId}
                 type="button"
-                className="flex w-full items-center justify-between gap-3 rounded-xl border border-border bg-muted/20 p-3 text-left transition-colors hover:border-primary/30 hover:bg-accent/50"
+                className="flex w-full items-center justify-between gap-3 rounded-xl border border-border bg-muted/20 p-3 text-left transition-all duration-200 hover:-translate-y-px hover:border-primary/30 hover:bg-accent/50 active:translate-y-0 motion-reduce:transform-none"
                 onClick={() => onSelect(item.evaluationId)}
               >
                 <span className="min-w-0">
@@ -402,12 +579,33 @@ function StepStateIcon({ step }: { step: EvaluationStepDto }) {
     return <CheckCircle2Icon className="size-4 text-success" />;
   }
   if (step.status === "running") {
-    return <LoaderCircleIcon className="size-4 animate-spin text-info" />;
+    return (
+      <LoaderCircleIcon className="size-4 animate-spin text-info motion-reduce:animate-none" />
+    );
   }
   if (step.status === "failed" || step.status === "error") {
     return <TriangleAlertIcon className="size-4 text-destructive" />;
   }
   return <CircleDotIcon className="size-4 text-muted-foreground" />;
+}
+
+function DetailSummaryItem({
+  label,
+  children,
+}: {
+  label: string;
+  children: ReactNode;
+}) {
+  return (
+    <div className="min-w-0 rounded-lg border border-border/75 bg-muted/25 p-3">
+      <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-muted-foreground">
+        {label}
+      </p>
+      <div className="mt-2 min-w-0 text-sm font-semibold text-foreground">
+        {children}
+      </div>
+    </div>
+  );
 }
 
 function SelectedEvaluationDetails({
@@ -424,6 +622,14 @@ function SelectedEvaluationDetails({
   error: unknown;
 }) {
   const errorExplanation = explainEvaluationError(evaluation?.errorCode);
+  const stepsWithLogs = steps?.filter((step) => Boolean(step.log)) ?? [];
+  const currentStep = evaluation?.currentStepName
+    ? formatStepName(evaluation.currentStepName)
+    : evaluation?.status === "queued"
+      ? "Waiting for runner"
+      : evaluation && ["passed", "failed", "error"].includes(evaluation.status)
+        ? "Evaluation complete"
+        : "No active step";
 
   return (
     <Card className="min-w-0">
@@ -454,8 +660,45 @@ function SelectedEvaluationDetails({
           </div>
         ) : null}
 
+        {evaluation ? (
+          <section aria-label="Evaluation summary">
+            <p className="mb-2 text-xs font-bold uppercase tracking-[0.12em] text-muted-foreground">
+              Summary
+            </p>
+            <div className="grid gap-2 sm:grid-cols-2">
+              <DetailSummaryItem label="Status">
+                <EvaluationStatusBadge status={evaluation.status} />
+              </DetailSummaryItem>
+              <DetailSummaryItem label="Score">
+                <span className="tabular-nums">
+                  {evaluation.score === null
+                    ? "Not scored"
+                    : formatNumber(evaluation.score)}
+                </span>
+              </DetailSummaryItem>
+              <DetailSummaryItem label="Current step">
+                <span className="block truncate capitalize" title={currentStep}>
+                  {currentStep}
+                </span>
+              </DetailSummaryItem>
+              <DetailSummaryItem label="Duration">
+                <span className="tabular-nums">
+                  {formatDuration(evaluation.startedAt, evaluation.completedAt)}
+                </span>
+              </DetailSummaryItem>
+            </div>
+          </section>
+        ) : null}
+
         {evaluation?.errorCode || evaluation?.errorMessage ? (
-          <div className="rounded-xl border border-destructive/25 bg-destructive/5 p-3 text-sm text-destructive">
+          <section
+            aria-label="Evaluation failure"
+            className="rounded-xl border border-destructive/25 bg-destructive/5 p-4 text-sm text-destructive"
+          >
+            <p className="mb-2 flex items-center gap-2 font-semibold text-foreground">
+              <TriangleAlertIcon className="size-4 text-destructive" /> Failure
+              details
+            </p>
             {evaluation.errorCode ? (
               <p className="font-mono text-xs font-semibold">
                 {evaluation.errorCode}
@@ -469,7 +712,7 @@ function SelectedEvaluationDetails({
                 {errorExplanation}
               </p>
             ) : null}
-          </div>
+          </section>
         ) : null}
 
         {error ? (
@@ -492,46 +735,95 @@ function SelectedEvaluationDetails({
         ) : null}
 
         {steps && steps.length > 0 ? (
-          <div className="relative space-y-0 before:absolute before:bottom-5 before:left-[17px] before:top-5 before:w-px before:bg-border">
-            {steps.map((step, index) => (
-              <div key={step.id} className="relative flex gap-3 pb-4 last:pb-0">
-                <span className="relative z-10 flex size-9 shrink-0 items-center justify-center rounded-full border border-border bg-card shadow-sm">
-                  <StepStateIcon step={step} />
-                </span>
-                <div className="min-w-0 flex-1 rounded-xl border border-border bg-muted/20 p-4">
-                  <div className="flex flex-wrap items-start justify-between gap-2">
-                    <p className="min-w-0 font-semibold capitalize text-foreground">
-                      <span className="mr-2 text-xs text-muted-foreground">
-                        {String(index + 1).padStart(2, "0")}
-                      </span>
-                      {formatStepName(step.stepName)}
-                    </p>
-                    <EvaluationStatusBadge status={step.status} />
-                  </div>
-                  <p className="mt-1 text-xs leading-5 text-muted-foreground">
-                    {step.completedAt
-                      ? `Completed ${formatNullableDate(step.completedAt)}`
-                      : step.startedAt
-                        ? `Started ${formatNullableDate(step.startedAt)}`
-                        : "Timing unavailable"}
-                    {step.exitCode !== null && step.exitCode !== undefined
-                      ? ` · Exit code ${step.exitCode}`
-                      : ""}
-                  </p>
-                  {step.log ? (
-                    <div className="mt-3 overflow-hidden rounded-lg border border-slate-800 bg-slate-950">
-                      <div className="flex items-center gap-2 border-b border-slate-800 px-3 py-2 text-[11px] font-semibold text-slate-400">
-                        <TerminalSquareIcon className="size-3.5" /> Runner log
-                      </div>
-                      <pre className="max-h-56 overflow-auto whitespace-pre-wrap break-words p-3 font-mono text-xs leading-relaxed text-slate-300">
-                        {step.log}
-                      </pre>
+          <section aria-labelledby="evaluation-steps-heading">
+            <div className="mb-3">
+              <p
+                id="evaluation-steps-heading"
+                className="text-sm font-semibold text-foreground"
+              >
+                Evaluation steps
+              </p>
+              <p className="mt-0.5 text-xs text-muted-foreground">
+                Runner lifecycle in execution order.
+              </p>
+            </div>
+            <div className="relative space-y-0 before:absolute before:bottom-5 before:left-[17px] before:top-5 before:w-px before:bg-border">
+              {steps.map((step, index) => (
+                <div
+                  key={step.id}
+                  className="relative flex gap-3 pb-3 last:pb-0"
+                >
+                  <span className="relative z-10 flex size-9 shrink-0 items-center justify-center rounded-full border border-border bg-card shadow-sm">
+                    <StepStateIcon step={step} />
+                  </span>
+                  <div className="min-w-0 flex-1 rounded-xl border border-border bg-muted/20 p-3.5">
+                    <div className="flex flex-wrap items-start justify-between gap-2">
+                      <p className="min-w-0 font-semibold capitalize text-foreground">
+                        <span className="mr-2 text-xs text-muted-foreground tabular-nums">
+                          {String(index + 1).padStart(2, "0")}
+                        </span>
+                        {formatStepName(step.stepName)}
+                      </p>
+                      <EvaluationStatusBadge status={step.status} />
                     </div>
-                  ) : null}
+                    <p className="mt-1 text-xs leading-5 text-muted-foreground">
+                      {step.completedAt
+                        ? `Completed ${formatNullableDate(step.completedAt)}`
+                        : step.startedAt
+                          ? `Started ${formatNullableDate(step.startedAt)}`
+                          : "Timing unavailable"}
+                      {step.exitCode !== null && step.exitCode !== undefined
+                        ? ` · Exit code ${step.exitCode}`
+                        : ""}
+                    </p>
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          </section>
+        ) : null}
+
+        {stepsWithLogs.length > 0 ? (
+          <section aria-labelledby="runner-logs-heading">
+            <div className="mb-3 border-t border-border/70 pt-4">
+              <p
+                id="runner-logs-heading"
+                className="flex items-center gap-2 text-sm font-semibold text-foreground"
+              >
+                <TerminalSquareIcon className="size-4 text-primary" /> Runner
+                logs
+              </p>
+              <p className="mt-0.5 text-xs text-muted-foreground">
+                Expand a step to inspect its raw, scrollable runner output.
+              </p>
+            </div>
+            <div className="space-y-2">
+              {stepsWithLogs.map((step) => (
+                <details
+                  key={step.id}
+                  className="group overflow-hidden rounded-xl border border-border bg-muted/15"
+                >
+                  <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-4 py-3 text-sm font-semibold capitalize text-foreground transition-colors hover:bg-muted/40 focus-visible:ring-2 focus-visible:ring-ring/60 focus-visible:ring-inset [&::-webkit-details-marker]:hidden">
+                    <span className="flex min-w-0 items-center gap-2">
+                      <TerminalSquareIcon className="size-4 shrink-0 text-muted-foreground" />
+                      <span className="truncate">
+                        {formatStepName(step.stepName)} log
+                      </span>
+                    </span>
+                    <span className="text-xs font-medium text-muted-foreground group-open:hidden">
+                      Show
+                    </span>
+                    <span className="hidden text-xs font-medium text-muted-foreground group-open:inline">
+                      Hide
+                    </span>
+                  </summary>
+                  <pre className="max-h-64 overflow-auto whitespace-pre-wrap break-words border-t border-slate-800 bg-slate-950 p-4 font-mono text-xs leading-relaxed text-slate-300">
+                    {step.log}
+                  </pre>
+                </details>
+              ))}
+            </div>
+          </section>
         ) : null}
       </CardContent>
     </Card>
@@ -549,12 +841,17 @@ function RecentEvaluationsTable({
 }) {
   return (
     <Card className="min-w-0">
-      <CardHeader>
-        <CardTitle>Recent evaluations</CardTitle>
-        <CardDescription>
-          Active jobs first, followed by the newest records in this filtered
-          scope (up to {RECENT_LIMIT}).
-        </CardDescription>
+      <CardHeader className="gap-3 sm:flex-row sm:items-start sm:justify-between sm:space-y-0">
+        <div>
+          <CardTitle>Recent evaluations</CardTitle>
+          <CardDescription className="mt-1.5">
+            Active work first, then the newest real evaluation records in this
+            scope.
+          </CardDescription>
+        </div>
+        <Badge variant="outline" className="w-fit bg-muted/30 tabular-nums">
+          {items.length} shown · max {RECENT_LIMIT}
+        </Badge>
       </CardHeader>
       <CardContent>
         {items.length === 0 ? (
@@ -562,10 +859,10 @@ function RecentEvaluationsTable({
             No evaluations match this monitor scope yet.
           </div>
         ) : (
-          <Table>
+          <Table className="min-w-[880px]">
             <TableHeader>
               <TableRow className="bg-muted/45 hover:bg-muted/45">
-                <TableHead>Student</TableHead>
+                <TableHead>Student / submission</TableHead>
                 <TableHead>Attempt</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Current step</TableHead>
@@ -581,6 +878,8 @@ function RecentEvaluationsTable({
                   <TableRow
                     key={item.evaluationId}
                     className={cn(
+                      selectedEvaluationId === item.evaluationId &&
+                        "border-l-2 border-l-primary bg-primary/5 hover:bg-primary/10",
                       hasFailed &&
                         "border-l-2 border-l-destructive bg-destructive/5 hover:bg-destructive/10",
                     )}
@@ -591,12 +890,20 @@ function RecentEvaluationsTable({
                     }
                   >
                     <TableCell>
-                      <span
-                        className="font-mono text-xs font-semibold"
-                        title={item.studentId}
-                      >
-                        {shortId(item.studentId)}
-                      </span>
+                      <div className="min-w-36">
+                        <p
+                          className="font-mono text-xs font-semibold"
+                          title={item.studentId}
+                        >
+                          {shortId(item.studentId)}
+                        </p>
+                        <p
+                          className="mt-1 truncate font-mono text-[10px] text-muted-foreground"
+                          title={item.submissionId}
+                        >
+                          ZIP · {shortId(item.submissionId)}
+                        </p>
+                      </div>
                     </TableCell>
                     <TableCell className="font-medium tabular-nums">
                       {item.attemptNo}
@@ -659,7 +966,9 @@ function RecentEvaluationsTable({
                         }
                         onClick={() => onSelect(item.evaluationId)}
                       >
-                        Inspect
+                        {selectedEvaluationId === item.evaluationId
+                          ? "Viewing"
+                          : "Inspect"}
                       </Button>
                     </TableCell>
                   </TableRow>
@@ -709,7 +1018,6 @@ export function LiveGradingMonitorView({
   const completionPercent = overview?.total
     ? Math.min(100, Math.max(0, (overview.terminal / overview.total) * 100))
     : 0;
-  const scopeIsFiltered = Boolean(filters.classId || filters.labId);
 
   async function refreshMonitor() {
     setIsManualRefreshing(true);
@@ -730,7 +1038,7 @@ export function LiveGradingMonitorView({
       <PageHeader
         eyebrow="Evaluation operations"
         title="Live grading monitor"
-        description="Watch accepted submissions move through the database waiting room at a controlled runner pace."
+        description="Follow each real ZIP from acceptance through the waiting room, isolated execution, and final result."
       >
         <Button
           type="button"
@@ -739,60 +1047,21 @@ export function LiveGradingMonitorView({
           onClick={() => void refreshMonitor()}
         >
           <RefreshCwIcon
-            className={cn("size-4", isManualRefreshing && "animate-spin")}
+            className={cn(
+              "size-4",
+              isManualRefreshing && "animate-spin motion-reduce:animate-none",
+            )}
           />
           Refresh
         </Button>
       </PageHeader>
 
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex min-w-0 flex-wrap items-center gap-2">
-          {filters.classId ? (
-            <ScopeBadge label="Class" value={filters.classId} />
-          ) : null}
-          {filters.labId ? (
-            <ScopeBadge label="Lab" value={filters.labId} />
-          ) : null}
-          {!scopeIsFiltered ? (
-            <Badge variant="outline" className="bg-card px-2.5 py-1">
-              All managed classes
-            </Badge>
-          ) : null}
-        </div>
-        <Badge
-          variant="outline"
-          className={cn(
-            "gap-2 bg-card px-2.5 py-1",
-            hasMonitorError
-              ? "text-destructive"
-              : hasActiveWork
-                ? "text-info"
-                : "text-muted-foreground",
-          )}
-        >
-          <span className="relative flex size-1.5" aria-hidden="true">
-            {hasActiveWork && !hasMonitorError ? (
-              <span className="absolute inline-flex size-full animate-ping rounded-full bg-current opacity-50" />
-            ) : null}
-            <span className="relative inline-flex size-1.5 rounded-full bg-current" />
-          </span>
-          {hasMonitorError
-            ? "Monitor error · polling reduced"
-            : hasActiveWork
-              ? "Live · refreshes every 1s"
-              : "Settled · checks every 10s"}
-        </Badge>
-      </div>
-
-      <Alert className="border-primary/20 bg-primary/5">
-        <InfoIcon className="text-primary" />
-        <AlertDescription className="text-foreground/85">
-          EvalCore accepts submissions immediately, puts evaluations into a
-          waiting room, and runs only a controlled number of isolated Docker
-          sandboxes at once. This protects the server while still guaranteeing
-          every accepted submission is processed.
-        </AlertDescription>
-      </Alert>
+      <DemoNarrativeHero
+        filters={filters}
+        overview={overview}
+        hasActiveWork={hasActiveWork}
+        hasMonitorError={hasMonitorError}
+      />
 
       {overviewQuery.error ? (
         <ApiErrorAlert
@@ -807,60 +1076,12 @@ export function LiveGradingMonitorView({
         />
       ) : null}
 
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-6">
-        <MonitorStatCard
-          label="Total"
-          value={overview?.total}
-          note="Accepted evaluations"
-          icon={<Layers3Icon className="size-4" />}
-        />
-        <MonitorStatCard
-          label="Queued"
-          value={overview?.queued}
-          note="In the waiting room"
-          icon={<Clock3Icon className="size-4" />}
-          tone="info"
-        />
-        <MonitorStatCard
-          label="Running"
-          value={overview?.running}
-          note="Using runner slots"
-          icon={
-            <LoaderCircleIcon
-              className={cn("size-4", overview?.running ? "animate-spin" : "")}
-            />
-          }
-          tone="info"
-        />
-        <MonitorStatCard
-          label="Passed"
-          value={overview?.passed}
-          note="Terminal passes"
-          icon={<CheckCircle2Icon className="size-4" />}
-          tone="success"
-        />
-        <MonitorStatCard
-          label="Failed"
-          value={overview?.failed}
-          note="Completed test failures"
-          icon={<XCircleIcon className="size-4" />}
-          tone="warning"
-        />
-        <MonitorStatCard
-          label="Error"
-          value={overview?.error}
-          note="Infrastructure or package errors"
-          icon={<TriangleAlertIcon className="size-4" />}
-          tone="danger"
-        />
-      </div>
-
-      <Card>
+      <Card className="overflow-hidden">
         <CardContent className="grid gap-6 p-5 lg:grid-cols-[minmax(0,1.3fr)_repeat(4,minmax(0,0.55fr))] lg:items-center">
           <div className="min-w-0">
             <div className="mb-2 flex items-end justify-between gap-3">
               <div>
-                <p className="text-sm font-semibold">Overall progress</p>
+                <p className="text-sm font-semibold">Terminal progress</p>
                 <p className="mt-0.5 text-xs text-muted-foreground">
                   Terminal evaluations out of all accepted evaluations
                 </p>
