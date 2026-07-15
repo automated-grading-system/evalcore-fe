@@ -6,6 +6,11 @@ export type EvaluationStatus =
   | "error"
   | (string & {});
 
+export type EvaluationScoringMode =
+  | "equal_assertions"
+  | "weighted_rubric"
+  | (string & {});
+
 export type EvaluationStepStatus =
   | "pending"
   | "running"
@@ -35,6 +40,7 @@ export interface EvaluationDto {
   status: EvaluationStatus;
   score?: number | null;
   maxScore?: number | null;
+  scoringMode?: EvaluationScoringMode | null;
   passed?: boolean | null;
   projectObjectKey: string;
   collectionObjectKey?: string | null;
@@ -83,6 +89,8 @@ export interface EvaluationMonitorRecentItemDto {
   attemptNo: number;
   status: EvaluationStatus;
   score: number | null;
+  maxScore?: number | null;
+  scoringMode?: EvaluationScoringMode | null;
   passed: boolean | null;
   errorCode: string | null;
   errorMessage: string | null;

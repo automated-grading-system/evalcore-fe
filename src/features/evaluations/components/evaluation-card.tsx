@@ -14,6 +14,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { formatDateTime } from "@/features/classes/components/formatters";
 import { EvaluationDetailsDialog } from "@/features/evaluations/components/evaluation-details-dialog";
 import { EvaluationReportButton } from "@/features/evaluations/components/evaluation-report-button";
+import { EvaluationScoringModeBadge } from "@/features/evaluations/components/evaluation-scoring-mode-badge";
 import { EvaluationStatusBadge } from "@/features/evaluations/components/evaluation-status-badge";
 import { useLatestEvaluationForSubmission } from "@/features/evaluations/hooks/use-evaluations";
 import type { EvaluationDto } from "@/types/evaluation";
@@ -78,6 +79,9 @@ export function EvaluationCard({ submissionId }: EvaluationCardProps) {
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
                   <EvaluationStatusBadge status={evaluation.status} />
+                  <EvaluationScoringModeBadge
+                    scoringMode={evaluation.scoringMode}
+                  />
                   {evaluation.status === "running" ? (
                     <LoaderCircleIcon className="size-4 animate-spin text-info" />
                   ) : null}

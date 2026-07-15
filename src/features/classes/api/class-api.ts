@@ -17,8 +17,10 @@ import type {
   CreateLabRequest,
   CreateLabResponse,
   LabDto,
+  LabRubricDto,
   LabUploadDto,
   PresignedUrlDto,
+  UpdateLabRubricRequest,
   UpdateLabRequest,
 } from "@/types/lab";
 
@@ -127,6 +129,17 @@ export function listClassLabs(
 
 export function getLab(labId: string): Promise<LabDto> {
   return apiGet<LabDto>(`/api/labs/${labId}`);
+}
+
+export function getLabRubric(labId: string): Promise<LabRubricDto> {
+  return apiGet<LabRubricDto>(`/api/labs/${labId}/rubric`);
+}
+
+export function updateLabRubric(
+  labId: string,
+  request: UpdateLabRubricRequest,
+): Promise<LabRubricDto> {
+  return apiPut<LabRubricDto>(`/api/labs/${labId}/rubric`, request);
 }
 
 export function updateLab(

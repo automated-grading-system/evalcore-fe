@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatDateTime } from "@/features/classes/components/formatters";
+import { LabRubricEditor } from "@/features/classes/components/lab-rubric-editor";
 import { LabStatusBadge } from "@/features/classes/components/lab-status-badge";
 import {
   useCollectionUrl,
@@ -143,6 +144,8 @@ export function LecturerLabDetailView({ labId }: LecturerLabDetailViewProps) {
           </Button>
         </CardContent>
       </Card>
+
+      <LabRubricEditor labId={labId} />
 
       <Card className="bg-muted/20">
         <CardHeader>

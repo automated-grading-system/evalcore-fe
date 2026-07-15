@@ -18,6 +18,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { formatDateTime } from "@/features/classes/components/formatters";
 import { EvaluationReportButton } from "@/features/evaluations/components/evaluation-report-button";
+import { EvaluationScoringModeBadge } from "@/features/evaluations/components/evaluation-scoring-mode-badge";
 import { EvaluationStatusBadge } from "@/features/evaluations/components/evaluation-status-badge";
 import type { EvaluationDto } from "@/types/evaluation";
 
@@ -46,6 +47,7 @@ export function EvaluationDetailsDialog({
 
         <div className="flex flex-wrap items-center gap-3">
           <EvaluationStatusBadge status={evaluation.status} />
+          <EvaluationScoringModeBadge scoringMode={evaluation.scoringMode} />
           {evaluation.score !== null && evaluation.score !== undefined ? (
             <span className="text-sm font-semibold text-foreground">
               Score: {evaluation.score} / {evaluation.maxScore ?? "-"}

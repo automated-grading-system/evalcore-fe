@@ -27,4 +27,6 @@ export const labQueryKeys = {
   all: ["labs"] as const,
   details: () => [...labQueryKeys.all, "detail"] as const,
   detail: (labId: string) => [...labQueryKeys.details(), labId] as const,
+  rubrics: () => [...labQueryKeys.all, "rubric"] as const,
+  rubric: (labId: string) => [...labQueryKeys.rubrics(), labId] as const,
 };

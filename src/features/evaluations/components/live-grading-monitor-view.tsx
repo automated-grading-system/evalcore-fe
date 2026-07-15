@@ -40,6 +40,10 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { formatDateTime } from "@/features/classes/components/formatters";
+import {
+  EvaluationScoringModeBadge,
+  formatScoringMode,
+} from "@/features/evaluations/components/evaluation-scoring-mode-badge";
 import { EvaluationStatusBadge } from "@/features/evaluations/components/evaluation-status-badge";
 import {
   isEvaluationActive,
@@ -80,6 +84,26 @@ function formatNumber(value: number | null | undefined): string {
   return new Intl.NumberFormat("en", { maximumFractionDigits: 1 }).format(
     value,
   );
+}
+
+function formatEvaluationScore(
+  score: number | null | undefined,
+  maxScore: number | null | undefined,
+): string | null {
+  if (score === null || score === undefined || !Number.isFinite(score)) {
+    return null;
+  }
+
+  const formattedScore = formatNumber(score);
+  if (
+    maxScore === null ||
+    maxScore === undefined ||
+    !Number.isFinite(maxScore)
+  ) {
+    return formattedScore;
+  }
+
+  return `${formattedScore} / ${formatNumber(maxScore)}`;
 }
 
 function formatCount(value: number | null | undefined): string {
@@ -670,11 +694,17 @@ function SelectedEvaluationDetails({
                 <EvaluationStatusBadge status={evaluation.status} />
               </DetailSummaryItem>
               <DetailSummaryItem label="Score">
-                <span className="tabular-nums">
-                  {evaluation.score === null
-                    ? "Not scored"
-                    : formatNumber(evaluation.score)}
-                </span>
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="tabular-nums">
+                    {formatEvaluationScore(
+                      evaluation.score,
+                      evaluation.maxScore,
+                    ) ?? "Not scored"}
+                  </span>
+                  <EvaluationScoringModeBadge
+                    scoringMode={evaluation.scoringMode}
+                  />
+                </div>
               </DetailSummaryItem>
               <DetailSummaryItem label="Current step">
                 <span className="block truncate capitalize" title={currentStep}>
@@ -946,8 +976,16 @@ function RecentEvaluationsTable({
                         </p>
                       ) : null}
                     </TableCell>
-                    <TableCell className="font-medium tabular-nums">
-                      {item.score === null ? "—" : formatNumber(item.score)}
+                    <TableCell className="font-medium">
+                      <p className="tabular-nums">
+                        {formatEvaluationScore(item.score, item.maxScore) ??
+                          "—"}
+                      </p>
+                      {formatScoringMode(item.scoringMode) ? (
+                        <p className="mt-1 text-[11px] font-normal text-muted-foreground">
+                          {formatScoringMode(item.scoringMode)}
+                        </p>
+                      ) : null}
                     </TableCell>
                     <TableCell className="text-xs text-muted-foreground tabular-nums">
                       {formatDuration(item.startedAt, item.completedAt)}

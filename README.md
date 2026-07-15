@@ -107,9 +107,23 @@ The following demo accounts exist. They will autofill in the login page UI:
 4. Frontend posts lab metadata through the Gateway.
 5. Frontend uploads the requirement PDF and Postman collection JSON directly to MinIO presigned URLs.
 6. Frontend completes lab assets through the Gateway.
-7. Student opens the joined class, sees active labs, and downloads only the requirement PDF.
+7. Lecturer can configure weighted grading criteria from the lab detail page.
+8. Student opens the joined class, sees active labs, and downloads only the requirement PDF.
 
 Students do not see the Postman collection download. Lecturer lab detail pages can download both requirement and collection assets.
+
+## Grading rubric
+
+Lecturers can add, remove, and save weighted rubric criteria from
+`/lecturer/labs/[labId]`. The PRN232 checklist template provides the 12-item,
+10-point teacher rubric. A lab with saved criteria uses weighted rubric scoring;
+a lab with no criteria keeps equal-weight Newman assertion scoring with a maximum
+score of 100. Evaluation views show the score, maximum score, and scoring policy
+when the Evaluation API provides them.
+
+The automated demo maps criteria to runtime API assertions. Structural criteria
+such as code quality can only be approximated by those checks until static
+analysis plugins are added.
 
 ## Troubleshooting
 

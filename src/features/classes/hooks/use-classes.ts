@@ -12,6 +12,7 @@ import {
   getClassMembers,
   getCollectionUrl,
   getLab,
+  getLabRubric,
   getMyClasses,
   getRequirementUrl,
   joinClass,
@@ -20,6 +21,7 @@ import {
   searchClasses,
   updateClass,
   updateLab,
+  updateLabRubric,
   uploadLabAssets,
   type ClassListParams,
   type ClassSearchParams,
@@ -34,6 +36,7 @@ import type {
   CompleteLabAssetsRequest,
   CreateLabRequest,
   LabUploadDto,
+  UpdateLabRubricRequest,
   UpdateLabRequest,
 } from "@/types/lab";
 
@@ -101,6 +104,14 @@ export function useLabDetail(labId: string) {
   return useQuery({
     queryKey: labQueryKeys.detail(labId),
     queryFn: () => getLab(labId),
+    enabled: Boolean(labId),
+  });
+}
+
+export function useLabRubric(labId: string) {
+  return useQuery({
+    queryKey: labQueryKeys.rubric(labId),
+    queryFn: () => getLabRubric(labId),
     enabled: Boolean(labId),
   });
 }
@@ -189,6 +200,18 @@ export function useUpdateLab(labId: string) {
       queryClient.invalidateQueries({
         queryKey: classQueryKeys.labsRoot(updatedLab.classId),
       });
+    },
+  });
+}
+
+export function useUpdateLabRubric(labId: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (request: UpdateLabRubricRequest) =>
+      updateLabRubric(labId, request),
+    onSuccess: (updatedRubric) => {
+      queryClient.setQueryData(labQueryKeys.rubric(labId), updatedRubric);
     },
   });
 }
