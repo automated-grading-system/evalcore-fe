@@ -6,12 +6,7 @@ import { toast } from "sonner";
 import { ApiErrorAlert } from "@/components/data/api-error-alert";
 import { PageHeader } from "@/components/layout/dashboard-shell";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   Table,
@@ -80,9 +75,7 @@ export function LecturerLabSubmissionsView({
         }
       </PageHeader>
 
-      {submissionsQuery.isLoading ? (
-        <Skeleton className="h-72 bg-zinc-900" />
-      ) : null}
+      {submissionsQuery.isLoading ? <Skeleton className="h-72" /> : null}
 
       {submissionsQuery.isError ? (
         <ApiErrorAlert error={submissionsQuery.error} />
@@ -106,18 +99,40 @@ export function LecturerLabSubmissionsView({
             {submissionsQuery.data.items.length > 0 ? (
               <Table>
                 <TableHeader>
-                  <TableRow className="border-border/80 bg-zinc-950/20 hover:bg-transparent">
-                    <TableHead className="font-semibold text-muted-foreground">Student</TableHead>
-                    <TableHead className="font-semibold text-muted-foreground">Attempt</TableHead>
-                    <TableHead className="font-semibold text-muted-foreground">File</TableHead>
-                    <TableHead className="font-semibold text-muted-foreground">Status</TableHead>
-                    <TableHead className="font-semibold text-muted-foreground">Evaluation</TableHead>
-                    <TableHead className="font-semibold text-muted-foreground">Score</TableHead>
-                    <TableHead className="font-semibold text-muted-foreground">Completed</TableHead>
-                    <TableHead className="font-semibold text-muted-foreground">Created</TableHead>
-                    <TableHead className="font-semibold text-muted-foreground">Submitted</TableHead>
-                    <TableHead className="text-right font-semibold text-muted-foreground">Details</TableHead>
-                    <TableHead className="text-right font-semibold text-muted-foreground">Source</TableHead>
+                  <TableRow className="bg-muted/45 hover:bg-muted/45">
+                    <TableHead className="font-semibold text-muted-foreground">
+                      Student
+                    </TableHead>
+                    <TableHead className="font-semibold text-muted-foreground">
+                      Attempt
+                    </TableHead>
+                    <TableHead className="font-semibold text-muted-foreground">
+                      File
+                    </TableHead>
+                    <TableHead className="font-semibold text-muted-foreground">
+                      Status
+                    </TableHead>
+                    <TableHead className="font-semibold text-muted-foreground">
+                      Evaluation
+                    </TableHead>
+                    <TableHead className="font-semibold text-muted-foreground">
+                      Score
+                    </TableHead>
+                    <TableHead className="font-semibold text-muted-foreground">
+                      Completed
+                    </TableHead>
+                    <TableHead className="font-semibold text-muted-foreground">
+                      Created
+                    </TableHead>
+                    <TableHead className="font-semibold text-muted-foreground">
+                      Submitted
+                    </TableHead>
+                    <TableHead className="text-right font-semibold text-muted-foreground">
+                      Details
+                    </TableHead>
+                    <TableHead className="text-right font-semibold text-muted-foreground">
+                      Source
+                    </TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -128,7 +143,7 @@ export function LecturerLabSubmissionsView({
                     return (
                       <TableRow
                         key={submission.id}
-                        className="border-border/50 transition-colors hover:bg-zinc-800/45"
+                        className="transition-colors hover:bg-muted/50"
                       >
                         <TableCell className="font-medium text-foreground">
                           {submission.studentEmail}
@@ -144,22 +159,30 @@ export function LecturerLabSubmissionsView({
                         </TableCell>
                         <TableCell>
                           {evaluationQuery?.isLoading ? (
-                            <span className="text-xs text-muted-foreground">Loading</span>
+                            <span className="text-xs text-muted-foreground">
+                              Loading
+                            </span>
                           ) : evaluation ? (
                             <div className="space-y-1">
-                              <EvaluationStatusBadge status={evaluation.status} />
-                              {evaluation.status === "error" && evaluation.errorCode ? (
-                                <p className="font-mono text-[11px] text-red-300">
+                              <EvaluationStatusBadge
+                                status={evaluation.status}
+                              />
+                              {evaluation.status === "error" &&
+                              evaluation.errorCode ? (
+                                <p className="font-mono text-[11px] text-destructive">
                                   {evaluation.errorCode}
                                 </p>
                               ) : null}
                             </div>
                           ) : (
-                            <span className="text-xs text-muted-foreground">Waiting</span>
+                            <span className="text-xs text-muted-foreground">
+                              Waiting
+                            </span>
                           )}
                         </TableCell>
                         <TableCell className="font-medium text-foreground">
-                          {evaluation?.score !== null && evaluation?.score !== undefined
+                          {evaluation?.score !== null &&
+                          evaluation?.score !== undefined
                             ? `${evaluation.score} / ${evaluation.maxScore ?? "-"}`
                             : "-"}
                         </TableCell>
@@ -176,7 +199,9 @@ export function LecturerLabSubmissionsView({
                           {evaluation ? (
                             <EvaluationDetailsDialog evaluation={evaluation} />
                           ) : (
-                            <span className="text-xs text-muted-foreground">-</span>
+                            <span className="text-xs text-muted-foreground">
+                              -
+                            </span>
                           )}
                         </TableCell>
                         <TableCell className="text-right">
@@ -200,7 +225,7 @@ export function LecturerLabSubmissionsView({
                 </TableBody>
               </Table>
             ) : (
-              <p className="rounded-xl border border-border/50 bg-zinc-950/30 p-6 text-sm text-muted-foreground text-center">
+              <p className="rounded-xl border border-dashed border-border bg-muted/25 p-8 text-center text-sm text-muted-foreground">
                 No student submissions have been completed for this lab yet.
               </p>
             )}

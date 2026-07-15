@@ -1,6 +1,11 @@
 "use client";
 
 import { useState } from "react";
+import {
+  CheckCircle2Icon,
+  FileArchiveIcon,
+  UploadCloudIcon,
+} from "lucide-react";
 import { toast } from "sonner";
 
 import { ApiErrorAlert } from "@/components/data/api-error-alert";
@@ -14,6 +19,7 @@ import {
 } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Progress } from "@/components/ui/progress";
 import { Textarea } from "@/components/ui/textarea";
 import { FileDropField } from "@/features/classes/components/file-drop-field";
 import { formatDateTime } from "@/features/classes/components/formatters";
@@ -23,10 +29,7 @@ import {
   useMySubmissionForLab,
   useSubmitSubmissionZip,
 } from "@/features/submissions/hooks/use-submissions";
-import {
-  getApiErrorMessage,
-  isApiClientError,
-} from "@/lib/api/errors";
+import { getApiErrorMessage, isApiClientError } from "@/lib/api/errors";
 
 interface StudentSubmissionPanelProps {
   labId: string;
@@ -41,6 +44,14 @@ const STEP_LABELS: Record<SubmitStep, string> = {
   uploading: "Uploading ZIP...",
   completing: "Completing submission...",
   done: "Submitted",
+};
+
+const STEP_PROGRESS: Record<SubmitStep, number> = {
+  idle: 0,
+  creating: 20,
+  uploading: 60,
+  completing: 90,
+  done: 100,
 };
 
 function isNoSubmissionError(error: unknown): boolean {
@@ -112,17 +123,17 @@ export function StudentSubmissionPanel({
   }
 
   return (
-    <Card className="border-border/60 bg-card/60 shadow-sm">
+    <Card>
       <CardHeader>
-        <CardTitle className="text-xl font-semibold tracking-tight">Project submission</CardTitle>
+        <CardTitle className="text-xl font-semibold tracking-tight">
+          Project submission
+        </CardTitle>
         <CardDescription className="text-muted-foreground">
           Upload your ASP.NET project as a ZIP archive.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-5">
-        {submissionQuery.isLoading ? (
-          <Skeleton className="h-24 bg-zinc-950/50" />
-        ) : null}
+        {submissionQuery.isLoading ? <Skeleton className="h-24" /> : null}
 
         {hasSubmissionStatusError ? (
           <ApiErrorAlert
@@ -135,7 +146,7 @@ export function StudentSubmissionPanel({
         !hasSubmissionStatusError &&
         existingSubmission ? (
           <>
-            <div className="grid gap-4 rounded-xl border border-border/80 bg-zinc-950/50 p-5 shadow-2xs sm:grid-cols-4">
+            <div className="grid gap-4 rounded-xl border border-border bg-muted/30 p-5 sm:grid-cols-4">
               <div>
                 <p className="font-mono text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
                   Status
@@ -179,9 +190,19 @@ export function StudentSubmissionPanel({
         {!submissionQuery.isLoading &&
         !hasSubmissionStatusError &&
         !existingSubmission ? (
-          <p className="rounded-xl border border-border/50 bg-zinc-950/30 p-4 text-sm text-muted-foreground text-center">
-            No submission has been completed for this lab yet.
-          </p>
+          <div className="flex items-center gap-3 rounded-xl border border-dashed border-border bg-muted/25 p-4">
+            <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-card text-muted-foreground shadow-sm">
+              <FileArchiveIcon className="size-4" />
+            </span>
+            <div>
+              <p className="text-sm font-semibold text-foreground">
+                No completed attempt
+              </p>
+              <p className="text-xs text-muted-foreground">
+                Your first ZIP upload will appear here.
+              </p>
+            </div>
+          </div>
         ) : null}
 
         {submitError ? (
@@ -189,9 +210,34 @@ export function StudentSubmissionPanel({
         ) : null}
 
         <div className="grid gap-4">
+          {step !== "idle" ? (
+            <div
+              className="rounded-xl border border-primary/20 bg-primary/5 p-4"
+              role="status"
+              aria-live="polite"
+            >
+              <div className="mb-3 flex items-center justify-between gap-3">
+                <span className="flex items-center gap-2 text-sm font-semibold text-foreground">
+                  {step === "done" ? (
+                    <CheckCircle2Icon className="size-4 text-success" />
+                  ) : (
+                    <UploadCloudIcon className="size-4 text-primary" />
+                  )}
+                  {STEP_LABELS[step]}
+                </span>
+                <span className="text-xs font-semibold text-muted-foreground">
+                  {STEP_PROGRESS[step]}%
+                </span>
+              </div>
+              <Progress value={STEP_PROGRESS[step]} />
+              <p className="mt-2 text-xs text-muted-foreground">
+                Keep this page open until the upload is complete.
+              </p>
+            </div>
+          ) : null}
           <FileDropField
             label="Project ZIP"
-            description="Select StudentProject.zip"
+            description="Drop your project ZIP here"
             accept=".zip,application/zip,application/x-zip-compressed"
             value={file}
             error={fileError}
@@ -204,7 +250,10 @@ export function StudentSubmissionPanel({
           />
 
           <div className="space-y-2">
-            <Label htmlFor="submission-notes" className="text-foreground/90 font-medium">
+            <Label
+              htmlFor="submission-notes"
+              className="text-foreground/90 font-medium"
+            >
               Notes
             </Label>
             <Textarea
@@ -222,8 +271,9 @@ export function StudentSubmissionPanel({
               type="button"
               disabled={disabled || isSubmitting}
               onClick={handleSubmit}
-              className="w-full sm:w-auto font-semibold px-6"
+              className="w-full px-6 sm:w-auto"
             >
+              <UploadCloudIcon />
               {buttonLabel}
             </Button>
           </div>

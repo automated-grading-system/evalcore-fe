@@ -1,6 +1,6 @@
 "use client";
 
-import { LoaderCircleIcon } from "lucide-react";
+import { Clock3Icon, LoaderCircleIcon, TrophyIcon } from "lucide-react";
 
 import { ApiErrorAlert } from "@/components/data/api-error-alert";
 import {
@@ -44,7 +44,7 @@ export function EvaluationCard({ submissionId }: EvaluationCardProps) {
   const evaluation = evaluationQuery.data;
 
   return (
-    <Card className="border-border/60 bg-card/60 shadow-sm">
+    <Card>
       <CardHeader>
         <CardTitle className="text-xl font-semibold tracking-tight">
           Evaluation
@@ -63,20 +63,23 @@ export function EvaluationCard({ submissionId }: EvaluationCardProps) {
           />
         ) : null}
 
-        {!evaluationQuery.isLoading && !evaluationQuery.isError && !evaluation ? (
-          <p className="rounded-lg border border-border/60 bg-muted/20 p-4 text-sm text-muted-foreground">
-            Waiting for evaluation...
-          </p>
+        {!evaluationQuery.isLoading &&
+        !evaluationQuery.isError &&
+        !evaluation ? (
+          <div className="flex items-center gap-3 rounded-xl border border-dashed border-border bg-muted/25 p-4 text-sm text-muted-foreground">
+            <Clock3Icon className="size-4" /> Waiting for the evaluation worker
+            to begin…
+          </div>
         ) : null}
 
         {evaluation ? (
-          <div className="space-y-4 rounded-xl border border-border/80 bg-zinc-950/30 p-5">
+          <div className="space-y-5 rounded-xl border border-border bg-muted/25 p-5">
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
                   <EvaluationStatusBadge status={evaluation.status} />
                   {evaluation.status === "running" ? (
-                    <LoaderCircleIcon className="size-4 animate-spin text-blue-300" />
+                    <LoaderCircleIcon className="size-4 animate-spin text-info" />
                   ) : null}
                 </div>
                 <p className="text-sm text-muted-foreground">
@@ -84,26 +87,35 @@ export function EvaluationCard({ submissionId }: EvaluationCardProps) {
                 </p>
               </div>
               {evaluation.score !== null && evaluation.score !== undefined ? (
-                <div className="text-right">
-                  <p className="font-mono text-[11px] uppercase tracking-wider text-muted-foreground">
-                    Score
-                  </p>
-                  <p className="mt-1 text-lg font-semibold text-foreground">
-                    {evaluation.score} / {evaluation.maxScore ?? "-"}
-                  </p>
+                <div className="flex min-w-32 items-center justify-end gap-3 rounded-xl border border-border bg-card px-4 py-3 text-right shadow-sm">
+                  <TrophyIcon className="size-5 text-warning" />
+                  <div>
+                    <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                      Score
+                    </p>
+                    <p className="mt-0.5 text-xl font-bold tracking-tight text-foreground">
+                      {evaluation.score}
+                      <span className="text-sm font-medium text-muted-foreground">
+                        {" "}
+                        / {evaluation.maxScore ?? "—"}
+                      </span>
+                    </p>
+                  </div>
                 </div>
               ) : null}
             </div>
 
             {evaluation.status === "error" &&
             (evaluation.errorCode || evaluation.errorMessage) ? (
-              <div className="rounded-lg border border-red-500/20 bg-red-500/5 p-3 text-sm text-red-200">
+              <div className="rounded-lg border border-destructive/25 bg-destructive/5 p-3 text-sm text-destructive">
                 {evaluation.errorCode ? (
                   <p className="font-mono text-xs font-semibold">
                     {evaluation.errorCode}
                   </p>
                 ) : null}
-                {evaluation.errorMessage ? <p>{evaluation.errorMessage}</p> : null}
+                {evaluation.errorMessage ? (
+                  <p>{evaluation.errorMessage}</p>
+                ) : null}
               </div>
             ) : null}
 

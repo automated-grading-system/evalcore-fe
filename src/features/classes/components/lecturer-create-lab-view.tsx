@@ -10,15 +10,13 @@ interface LecturerCreateLabViewProps {
   classId: string;
 }
 
-export function LecturerCreateLabView({
-  classId,
-}: LecturerCreateLabViewProps) {
+export function LecturerCreateLabView({ classId }: LecturerCreateLabViewProps) {
   const classQuery = useClassDetail(classId);
 
   if (classQuery.isLoading) {
     return (
       <div className="max-w-4xl">
-        <Skeleton className="h-24 bg-zinc-900" />
+        <Skeleton className="h-24" />
       </div>
     );
   }

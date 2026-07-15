@@ -9,19 +9,14 @@ import { PageHeader } from "@/components/layout/dashboard-shell";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import {
-  formatDateTime,
-} from "@/features/classes/components/formatters";
+import { formatDateTime } from "@/features/classes/components/formatters";
 import { LabStatusBadge } from "@/features/classes/components/lab-status-badge";
 import {
   useLabDetail,
   useRequirementUrl,
 } from "@/features/classes/hooks/use-classes";
 import { StudentSubmissionPanel } from "@/features/submissions/components/student-submission-panel";
-import {
-  getApiErrorMessage,
-  isApiClientError,
-} from "@/lib/api/errors";
+import { getApiErrorMessage, isApiClientError } from "@/lib/api/errors";
 
 interface StudentLabDetailViewProps {
   labId: string;
@@ -57,8 +52,8 @@ export function StudentLabDetailView({ labId }: StudentLabDetailViewProps) {
   if (labQuery.isLoading) {
     return (
       <div className="flex max-w-5xl flex-col gap-6">
-        <Skeleton className="h-24 bg-zinc-900" />
-        <Skeleton className="h-64 bg-zinc-900" />
+        <Skeleton className="h-24" />
+        <Skeleton className="h-64" />
       </div>
     );
   }
@@ -101,10 +96,7 @@ export function StudentLabDetailView({ labId }: StudentLabDetailViewProps) {
       />
 
       {assetError ? (
-        <ApiErrorAlert
-          error={assetError}
-          title="Requirement request failed"
-        />
+        <ApiErrorAlert error={assetError} title="Requirement request failed" />
       ) : null}
 
       <Card className="border-border/60 bg-card/60 shadow-sm">
@@ -137,8 +129,8 @@ export function StudentLabDetailView({ labId }: StudentLabDetailViewProps) {
       </Card>
 
       {!isActive && (
-        <Card className="border-amber-500/20 bg-amber-500/5">
-          <CardContent className="p-5 text-sm text-amber-200">
+        <Card className="border-warning/25 bg-warning/5">
+          <CardContent className="p-5 text-sm text-warning">
             This lab is not active yet.
           </CardContent>
         </Card>

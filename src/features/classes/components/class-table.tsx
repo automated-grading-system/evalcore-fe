@@ -26,38 +26,39 @@ export function ClassTable({
   renderAction,
 }: ClassTableProps) {
   return (
-    <div className="overflow-hidden rounded-lg border border-zinc-800/70 bg-zinc-900/30">
+    <div className="overflow-hidden rounded-xl border border-border bg-card shadow-sm">
       <Table>
         <TableHeader>
-          <TableRow className="border-zinc-800/70 hover:bg-transparent">
-            <TableHead className="text-zinc-400">Class</TableHead>
-            <TableHead className="hidden text-zinc-400 md:table-cell">
+          <TableRow className="bg-muted/45 hover:bg-muted/45">
+            <TableHead className="h-11 px-4 text-xs font-bold uppercase tracking-wider text-muted-foreground">
+              Class
+            </TableHead>
+            <TableHead className="hidden h-11 text-xs font-bold uppercase tracking-wider text-muted-foreground md:table-cell">
               Updated
             </TableHead>
-            <TableHead className="text-right text-zinc-400">Action</TableHead>
+            <TableHead className="h-11 px-4 text-right text-xs font-bold uppercase tracking-wider text-muted-foreground">
+              Action
+            </TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {classes.map((classItem) => (
-            <TableRow
-              key={classItem.id}
-              className="border-zinc-800/70 hover:bg-zinc-800/30"
-            >
-              <TableCell className="max-w-[28rem]">
+            <TableRow key={classItem.id} className="hover:bg-muted/35">
+              <TableCell className="max-w-[28rem] px-4 py-3.5">
                 <Link
                   href={getHref(classItem)}
-                  className="font-medium text-zinc-100 transition-colors hover:text-white"
+                  className="font-semibold text-foreground transition-colors hover:text-primary"
                 >
                   {classItem.name}
                 </Link>
-                <p className="mt-1 line-clamp-1 text-xs text-zinc-500">
+                <p className="mt-1 line-clamp-1 text-xs text-muted-foreground">
                   {classItem.description ?? "No description provided."}
                 </p>
               </TableCell>
-              <TableCell className="hidden text-zinc-500 md:table-cell">
+              <TableCell className="hidden text-muted-foreground md:table-cell">
                 {formatDate(classItem.updatedAt)}
               </TableCell>
-              <TableCell className="text-right">
+              <TableCell className="px-4 text-right">
                 {renderAction ? (
                   renderAction(classItem)
                 ) : (

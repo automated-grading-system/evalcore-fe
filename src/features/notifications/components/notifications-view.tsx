@@ -1,10 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { CheckCheck, ExternalLink, RefreshCw } from "lucide-react";
+import { BellOffIcon, CheckCheck, ExternalLink, RefreshCw } from "lucide-react";
+import { toast } from "sonner";
 
 import { ApiErrorAlert } from "@/components/data/api-error-alert";
 import { PageHeader } from "@/components/layout/dashboard-shell";
+import { EmptyState } from "@/components/layout/states";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -17,6 +19,7 @@ import {
   useUnreadNotificationCount,
 } from "@/features/notifications/hooks/use-notifications";
 import { useAuth } from "@/lib/auth/auth-context";
+import { getApiErrorMessage } from "@/lib/api/errors";
 import type { NotificationDto } from "@/types/notification";
 
 function notificationReference(notification: NotificationDto): string | null {
@@ -51,14 +54,31 @@ export function NotificationsView() {
   const notifications = notificationsQuery.data?.items ?? [];
   const unreadCount = unreadCountQuery.data?.count ?? 0;
 
+  function markOneRead(notificationId: string) {
+    markReadMutation.mutate(notificationId, {
+      onSuccess: () => toast.success("Notification marked as read."),
+      onError: (error) => toast.error(getApiErrorMessage(error)),
+    });
+  }
+
+  function markAllRead() {
+    markAllReadMutation.mutate(undefined, {
+      onSuccess: () => toast.success("All notifications marked as read."),
+      onError: (error) => toast.error(getApiErrorMessage(error)),
+    });
+  }
+
   return (
-    <div>
+    <div className="flex flex-col gap-6">
       <PageHeader
         title="Notifications"
         description="Keep up with evaluation and submission updates."
       >
         <div className="flex flex-wrap items-center gap-2">
-          <Badge variant={unreadCount > 0 ? "default" : "secondary"}>
+          <Badge
+            variant={unreadCount > 0 ? "default" : "secondary"}
+            className="h-8 px-3"
+          >
             {unreadCount} unread
           </Badge>
           <Button
@@ -79,7 +99,7 @@ export function NotificationsView() {
           </Button>
           <Button
             size="sm"
-            onClick={() => markAllReadMutation.mutate()}
+            onClick={markAllRead}
             disabled={unreadCount === 0 || markAllReadMutation.isPending}
           >
             <CheckCheck />
@@ -106,11 +126,11 @@ export function NotificationsView() {
       {!notificationsQuery.isLoading &&
       !notificationsQuery.isError &&
       notifications.length === 0 ? (
-        <Card>
-          <CardContent className="py-12 text-center text-sm text-muted-foreground">
-            No notifications yet.
-          </CardContent>
-        </Card>
+        <EmptyState
+          title="You’re all caught up"
+          description="Evaluation and submission updates will appear here when they arrive."
+          icon={<BellOffIcon className="size-5" />}
+        />
       ) : null}
 
       {!notificationsQuery.isLoading &&
@@ -126,27 +146,35 @@ export function NotificationsView() {
               <Card
                 key={notification.id}
                 className={
-                  isUnread ? "border-primary/40 bg-primary/[0.04]" : ""
+                  isUnread
+                    ? "border-primary/30 bg-primary/[0.045] shadow-sm"
+                    : "bg-card/70"
                 }
               >
                 <CardContent className="flex flex-col gap-4 py-5 sm:flex-row sm:items-start sm:justify-between">
-                  <div className="min-w-0 space-y-2">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <h2 className="font-semibold text-foreground">
-                        {notification.title || "Notification"}
-                      </h2>
-                      <Badge variant={isUnread ? "default" : "secondary"}>
-                        {isUnread ? "Unread" : "Read"}
-                      </Badge>
-                    </div>
-                    {notification.message ? (
-                      <p className="whitespace-pre-wrap text-sm leading-relaxed text-muted-foreground">
-                        {notification.message}
-                      </p>
-                    ) : null}
-                    <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
-                      <span>{formatDateTime(notification.createdAt)}</span>
-                      {reference ? <span>{reference}</span> : null}
+                  <div className="flex min-w-0 gap-3">
+                    <span
+                      className={`mt-2 size-2 shrink-0 rounded-full ${isUnread ? "bg-primary ring-4 ring-primary/10" : "bg-border"}`}
+                      aria-hidden="true"
+                    />
+                    <div className="min-w-0 space-y-2">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <h2 className="font-semibold text-foreground">
+                          {notification.title || "Notification"}
+                        </h2>
+                        <Badge variant={isUnread ? "default" : "secondary"}>
+                          {isUnread ? "Unread" : "Read"}
+                        </Badge>
+                      </div>
+                      {notification.message ? (
+                        <p className="whitespace-pre-wrap text-sm leading-relaxed text-muted-foreground">
+                          {notification.message}
+                        </p>
+                      ) : null}
+                      <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
+                        <span>{formatDateTime(notification.createdAt)}</span>
+                        {reference ? <span>{reference}</span> : null}
+                      </div>
                     </div>
                   </div>
                   <div className="flex shrink-0 flex-wrap gap-2">
@@ -162,7 +190,7 @@ export function NotificationsView() {
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => markReadMutation.mutate(notification.id)}
+                        onClick={() => markOneRead(notification.id)}
                         disabled={markReadMutation.isPending}
                       >
                         Mark as read

@@ -30,8 +30,8 @@ export default function LecturerClassesPage() {
 
       {classesQuery.isLoading && (
         <div className="grid gap-3">
-          <Skeleton className="h-12 bg-zinc-900" />
-          <Skeleton className="h-56 bg-zinc-900" />
+          <Skeleton className="h-12" />
+          <Skeleton className="h-56" />
         </div>
       )}
 

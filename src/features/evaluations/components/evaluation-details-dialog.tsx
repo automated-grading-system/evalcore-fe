@@ -9,6 +9,12 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  CheckCircle2Icon,
+  CircleDotIcon,
+  Clock3Icon,
+  TerminalSquareIcon,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { formatDateTime } from "@/features/classes/components/formatters";
 import { EvaluationReportButton } from "@/features/evaluations/components/evaluation-report-button";
@@ -29,11 +35,12 @@ export function EvaluationDetailsDialog({
           View details
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-h-[calc(100dvh-2rem)] max-w-2xl overflow-y-auto p-5 sm:max-w-2xl">
+      <DialogContent className="max-h-[calc(100dvh-2rem)] max-w-3xl overflow-y-auto p-5 sm:max-w-3xl">
         <DialogHeader>
           <DialogTitle>Evaluation details</DialogTitle>
           <DialogDescription>
-            Attempt {evaluation.attemptNo} completed {formatDateTime(evaluation.completedAt)}.
+            Attempt {evaluation.attemptNo} completed{" "}
+            {formatDateTime(evaluation.completedAt)}.
           </DialogDescription>
         </DialogHeader>
 
@@ -47,7 +54,7 @@ export function EvaluationDetailsDialog({
         </div>
 
         {evaluation.errorCode || evaluation.errorMessage ? (
-          <div className="rounded-lg border border-red-500/20 bg-red-500/5 p-3 text-sm text-red-200">
+          <div className="rounded-lg border border-destructive/25 bg-destructive/5 p-3 text-sm text-destructive">
             {evaluation.errorCode ? (
               <p className="font-mono text-xs font-semibold">
                 {evaluation.errorCode}
@@ -58,31 +65,52 @@ export function EvaluationDetailsDialog({
         ) : null}
 
         <div className="space-y-3">
-          <h3 className="text-sm font-semibold text-foreground">Evaluation steps</h3>
+          <h3 className="text-sm font-semibold text-foreground">
+            Evaluation steps
+          </h3>
           {evaluation.steps.length > 0 ? (
-            <div className="space-y-2">
-              {evaluation.steps.map((step) => (
+            <div className="relative space-y-0 before:absolute before:bottom-5 before:left-[17px] before:top-5 before:w-px before:bg-border">
+              {evaluation.steps.map((step, index) => (
                 <div
                   key={step.id}
-                  className="rounded-lg border border-border/60 bg-muted/20 p-3"
+                  className="relative flex gap-3 pb-4 last:pb-0"
                 >
-                  <div className="flex flex-wrap items-center justify-between gap-2">
-                    <p className="font-medium text-foreground">
-                      {step.stepName.replaceAll("_", " ")}
+                  <span className="relative z-10 flex size-9 shrink-0 items-center justify-center rounded-full border border-border bg-card text-muted-foreground shadow-sm">
+                    {step.status === "passed" ? (
+                      <CheckCircle2Icon className="size-4 text-success" />
+                    ) : step.status === "running" ? (
+                      <Clock3Icon className="size-4 animate-pulse text-info" />
+                    ) : (
+                      <CircleDotIcon className="size-4" />
+                    )}
+                  </span>
+                  <div className="min-w-0 flex-1 rounded-xl border border-border bg-muted/20 p-4">
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <p className="font-semibold capitalize text-foreground">
+                        <span className="mr-2 text-xs text-muted-foreground">
+                          {String(index + 1).padStart(2, "0")}
+                        </span>
+                        {step.stepName.replaceAll("_", " ")}
+                      </p>
+                      <EvaluationStatusBadge status={step.status} />
+                    </div>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      {formatDateTime(step.completedAt ?? step.startedAt)}
+                      {step.exitCode !== null && step.exitCode !== undefined
+                        ? ` · Exit code ${step.exitCode}`
+                        : ""}
                     </p>
-                    <EvaluationStatusBadge status={step.status} />
+                    {step.log ? (
+                      <div className="mt-3 overflow-hidden rounded-lg border border-slate-800 bg-slate-950">
+                        <div className="flex items-center gap-2 border-b border-slate-800 px-3 py-2 text-[11px] font-semibold text-slate-400">
+                          <TerminalSquareIcon className="size-3.5" /> Step log
+                        </div>
+                        <pre className="max-h-52 overflow-auto whitespace-pre-wrap p-3 font-mono text-xs leading-relaxed text-slate-300">
+                          {step.log}
+                        </pre>
+                      </div>
+                    ) : null}
                   </div>
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    {formatDateTime(step.completedAt ?? step.startedAt)}
-                    {step.exitCode !== null && step.exitCode !== undefined
-                      ? ` · Exit code ${step.exitCode}`
-                      : ""}
-                  </p>
-                  {step.log ? (
-                    <pre className="mt-2 max-h-32 overflow-auto whitespace-pre-wrap rounded-md bg-zinc-950/60 p-2 text-xs leading-relaxed text-zinc-300">
-                      {step.log}
-                    </pre>
-                  ) : null}
                 </div>
               ))}
             </div>

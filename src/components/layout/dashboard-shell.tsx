@@ -1,13 +1,12 @@
-import { cn } from "@/lib/utils";
-import type { Role } from "@/lib/types/api";
+"use client";
+
+import { ArrowDownRightIcon, ArrowUpRightIcon } from "lucide-react";
+import { useEffect, useState } from "react";
+
 import { Sidebar } from "@/components/layout/sidebar";
 import { Topbar } from "@/components/layout/topbar";
-
-// ============================================================
-// DashboardShell — the full layout frame for role pages.
-// Taste Skill: structured columns, controlled density,
-// premium dark aesthetics.
-// ============================================================
+import type { Role } from "@/lib/types/api";
+import { cn } from "@/lib/utils";
 
 interface DashboardShellProps {
   role: Role;
@@ -22,22 +21,82 @@ export function DashboardShell({
   children,
   className,
 }: DashboardShellProps) {
+  const [mobileOpen, setMobileOpen] = useState(false);
+
+  useEffect(() => {
+    document.body.style.overflow = mobileOpen ? "hidden" : "";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [mobileOpen]);
+
   return (
-    <div className="flex min-h-[100dvh] bg-background font-sans text-foreground">
+    <div className="flex min-h-dvh bg-background text-foreground">
       <Sidebar role={role} />
-      <div className="flex flex-1 flex-col min-w-0 bg-background">
-        <Topbar title={title} />
-        <main className={cn("flex-1 p-6 lg:p-10 overflow-auto", className)}>
-          {children}
+      {mobileOpen ? (
+        <>
+          <button
+            type="button"
+            className="fixed inset-0 z-40 bg-black/45 backdrop-blur-sm md:hidden"
+            onClick={() => setMobileOpen(false)}
+            aria-label="Dismiss navigation"
+          />
+          <Sidebar role={role} mobile onClose={() => setMobileOpen(false)} />
+        </>
+      ) : null}
+      <div className="flex min-w-0 flex-1 flex-col">
+        <Topbar title={title} onOpenMenu={() => setMobileOpen(true)} />
+        <main
+          className={cn(
+            "min-w-0 flex-1 px-4 py-6 sm:px-6 lg:px-8 lg:py-8",
+            className,
+          )}
+        >
+          <div className="mx-auto w-full max-w-[1440px]">{children}</div>
         </main>
       </div>
     </div>
   );
 }
 
-// ---- Page section helpers (layout rhythm) ----
-
 export function PageHeader({
+  title,
+  description,
+  eyebrow,
+  children,
+}: {
+  title: string;
+  description?: string;
+  eyebrow?: string;
+  children?: React.ReactNode;
+}) {
+  return (
+    <div className="flex flex-col gap-4 border-b border-border/70 pb-6 sm:flex-row sm:items-end sm:justify-between">
+      <div className="min-w-0">
+        {eyebrow ? (
+          <p className="mb-2 text-xs font-bold uppercase tracking-[0.16em] text-primary">
+            {eyebrow}
+          </p>
+        ) : null}
+        <h1 className="text-2xl font-bold tracking-[-0.025em] text-foreground sm:text-3xl">
+          {title}
+        </h1>
+        {description ? (
+          <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">
+            {description}
+          </p>
+        ) : null}
+      </div>
+      {children ? (
+        <div className="flex shrink-0 flex-wrap items-center gap-2">
+          {children}
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+export function SectionHeader({
   title,
   description,
   children,
@@ -47,25 +106,23 @@ export function PageHeader({
   children?: React.ReactNode;
 }) {
   return (
-    <div className="mb-8 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 border-b border-border/40 pb-6">
+    <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight text-foreground">
+        <h2 className="text-base font-bold tracking-tight text-foreground">
           {title}
-        </h1>
-        {description && (
-          <p className="mt-2 text-sm text-muted-foreground max-w-[60ch] leading-relaxed">
-            {description}
-          </p>
-        )}
+        </h2>
+        {description ? (
+          <p className="mt-1 text-sm text-muted-foreground">{description}</p>
+        ) : null}
       </div>
-      {children && <div className="shrink-0">{children}</div>}
+      {children ? <div className="shrink-0">{children}</div> : null}
     </div>
   );
 }
 
 export function StatsGrid({ children }: { children: React.ReactNode }) {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">{children}</div>
+    <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">{children}</div>
   );
 }
 
@@ -73,18 +130,39 @@ export interface StatCardProps {
   label: string;
   value: string | number;
   note?: string;
+  trend?: "up" | "down";
+  icon?: React.ReactNode;
 }
 
-export function StatCard({ label, value, note }: StatCardProps) {
+export function StatCard({ label, value, note, trend, icon }: StatCardProps) {
   return (
-    <div className="rounded-xl border border-border/60 bg-card/60 p-5 flex flex-col gap-3 shadow-xs">
-      <p className="text-[11px] font-mono font-semibold text-muted-foreground uppercase tracking-wider">
-        {label}
-      </p>
-      <p className="text-3xl font-semibold tracking-tight text-foreground">
-        {value}
-      </p>
-      {note && <p className="text-xs text-muted-foreground font-medium">{note}</p>}
+    <div className="surface-panel flex min-h-32 flex-col justify-between p-5">
+      <div className="flex items-start justify-between gap-3">
+        <p className="text-xs font-bold uppercase tracking-[0.12em] text-muted-foreground">
+          {label}
+        </p>
+        {icon ? (
+          <span className="flex size-9 items-center justify-center rounded-lg bg-primary/10 text-primary">
+            {icon}
+          </span>
+        ) : null}
+      </div>
+      <div className="mt-4">
+        <p className="text-3xl font-bold tracking-[-0.035em] text-foreground">
+          {value}
+        </p>
+        {note ? (
+          <p className="mt-1.5 flex items-center gap-1 text-xs text-muted-foreground">
+            {trend === "up" ? (
+              <ArrowUpRightIcon className="size-3.5 text-success" />
+            ) : null}
+            {trend === "down" ? (
+              <ArrowDownRightIcon className="size-3.5 text-destructive" />
+            ) : null}
+            {note}
+          </p>
+        ) : null}
+      </div>
     </div>
   );
 }

@@ -1,4 +1,4 @@
-import { Badge } from "@/components/ui/badge";
+import { StatusBadge, type StatusTone } from "@/components/ui/status-badge";
 import type { LabStatus } from "@/types/lab";
 
 const STATUS_LABELS: Record<LabStatus, string> = {
@@ -7,16 +7,16 @@ const STATUS_LABELS: Record<LabStatus, string> = {
   pending_assets: "Pending assets",
 };
 
-const STATUS_CLASSES: Record<LabStatus, string> = {
-  active: "border-emerald-500/20 bg-emerald-500/10 text-emerald-300",
-  archived: "border-zinc-700 bg-zinc-800/70 text-zinc-300",
-  pending_assets: "border-amber-500/20 bg-amber-500/10 text-amber-300",
+const STATUS_TONES: Record<LabStatus, StatusTone> = {
+  active: "success",
+  archived: "neutral",
+  pending_assets: "warning",
 };
 
 export function LabStatusBadge({ status }: { status: LabStatus }) {
   return (
-    <Badge variant="outline" className={STATUS_CLASSES[status]}>
+    <StatusBadge tone={STATUS_TONES[status]}>
       {STATUS_LABELS[status]}
-    </Badge>
+    </StatusBadge>
   );
 }

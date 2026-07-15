@@ -1,4 +1,8 @@
-import { PageHeader, StatsGrid, StatCard } from "@/components/layout/dashboard-shell";
+import {
+  PageHeader,
+  StatsGrid,
+  StatCard,
+} from "@/components/layout/dashboard-shell";
 
 // ============================================================
 // Admin Dashboard Home
@@ -19,14 +23,16 @@ export default function AdminDashboardPage() {
         <StatCard label="System Health" value="100%" note="No recent alerts" />
       </StatsGrid>
 
-      <div className="rounded-md border border-zinc-200/50 dark:border-zinc-800/50 bg-zinc-50/50 dark:bg-zinc-900/20 px-8 py-16 flex flex-col items-center gap-4 text-center">
-        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-zinc-100 dark:bg-zinc-800/50">
-          <span className="text-zinc-500 text-lg">⚙️</span>
+      <div className="flex flex-col items-center gap-4 rounded-xl border border-border bg-card px-8 py-16 text-center shadow-sm">
+        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-muted">
+          <span className="text-lg text-muted-foreground">⚙️</span>
         </div>
         <div>
-          <h3 className="text-base font-medium text-zinc-900 dark:text-zinc-100">System Nominal</h3>
-          <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400 max-w-sm">
-            The API Gateway and Identity service are functioning properly. 
+          <h3 className="text-base font-medium text-foreground">
+            System Nominal
+          </h3>
+          <p className="mt-1 max-w-sm text-sm text-muted-foreground">
+            The API Gateway and Identity service are functioning properly.
             Detailed service logs and evaluations will populate here.
           </p>
         </div>

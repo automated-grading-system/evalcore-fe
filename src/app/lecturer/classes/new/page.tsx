@@ -59,7 +59,7 @@ export default function NewLecturerClassPage() {
         description="Create a class through the API Gateway-backed Class Service."
       />
 
-      <Card className="border-zinc-800/70 bg-zinc-900/35">
+      <Card>
         <CardHeader>
           <CardTitle>Class details</CardTitle>
         </CardHeader>
@@ -82,11 +82,11 @@ export default function NewLecturerClassPage() {
                 {nameError ? (
                   <p className="text-xs text-destructive">{nameError}</p>
                 ) : (
-                  <p className="text-xs text-zinc-500">
+                  <p className="text-xs text-muted-foreground">
                     Use the official course or section name.
                   </p>
                 )}
-                <span className="font-mono text-[11px] text-zinc-600">
+                <span className="font-mono text-[11px] text-muted-foreground">
                   {name.length}/150
                 </span>
               </div>

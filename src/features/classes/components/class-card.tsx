@@ -19,7 +19,7 @@ export function ClassCard({
   children,
 }: ClassCardProps) {
   return (
-    <Card className="border-border/60 bg-card/60 shadow-xs hover:border-border/100 hover:bg-card/85 transition-all duration-200">
+    <Card className="group border-border/80 bg-card shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/25 hover:shadow-md">
       <CardContent className="flex flex-col gap-4 p-5 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0">
           <Link
@@ -28,10 +28,10 @@ export function ClassCard({
           >
             {classItem.name}
           </Link>
-          <p className="mt-2 line-clamp-2 max-w-2xl text-sm leading-relaxed text-zinc-400">
+          <p className="mt-2 line-clamp-2 max-w-2xl text-sm leading-relaxed text-muted-foreground">
             {classItem.description ?? "No description provided."}
           </p>
-          <div className="mt-4 flex flex-wrap gap-x-5 gap-y-2 text-xs text-zinc-500">
+          <div className="mt-4 flex flex-wrap gap-x-5 gap-y-2 text-xs text-muted-foreground">
             <span>Created {formatDate(classItem.createdAt)}</span>
             <span>Updated {formatDate(classItem.updatedAt)}</span>
           </div>

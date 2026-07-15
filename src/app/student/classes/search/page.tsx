@@ -63,7 +63,7 @@ export default function SearchClassesPage() {
 
       <form
         onSubmit={handleSubmit}
-        className="rounded-lg border border-zinc-800/70 bg-zinc-900/35 p-5"
+        className="rounded-xl border border-border bg-card p-5 shadow-sm"
       >
         <div className="grid gap-2">
           <Label htmlFor="class-search">Class name</Label>
@@ -87,8 +87,8 @@ export default function SearchClassesPage() {
 
       {searchQuery.isLoading && (
         <div className="grid gap-3">
-          <Skeleton className="h-12 bg-zinc-900" />
-          <Skeleton className="h-56 bg-zinc-900" />
+          <Skeleton className="h-12" />
+          <Skeleton className="h-56" />
         </div>
       )}
 

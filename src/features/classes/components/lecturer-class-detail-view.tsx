@@ -19,9 +19,7 @@ import {
 } from "@/components/ui/table";
 import { ClassEmptyState } from "@/features/classes/components/class-empty-state";
 import { LabCard } from "@/features/classes/components/lab-card";
-import {
-  formatDateTime,
-} from "@/features/classes/components/formatters";
+import { formatDateTime } from "@/features/classes/components/formatters";
 import {
   useClassDetail,
   useClassLabs,
@@ -42,8 +40,8 @@ export function LecturerClassDetailView({
   if (classQuery.isLoading) {
     return (
       <div className="flex max-w-6xl flex-col gap-6">
-        <Skeleton className="h-24 bg-zinc-900" />
-        <Skeleton className="h-72 bg-zinc-900" />
+        <Skeleton className="h-24" />
+        <Skeleton className="h-72" />
       </div>
     );
   }
@@ -106,7 +104,7 @@ export function LecturerClassDetailView({
       </Card>
 
       <Tabs defaultValue="labs" className="gap-5">
-        <TabsList className="bg-zinc-950/80 border border-border/40 p-1">
+        <TabsList className="border border-border bg-muted/70 p-1">
           <TabsTrigger value="labs">Labs</TabsTrigger>
           <TabsTrigger value="members">Members</TabsTrigger>
         </TabsList>
@@ -114,8 +112,8 @@ export function LecturerClassDetailView({
         <TabsContent value="labs" className="space-y-4">
           {labsQuery.isLoading && (
             <div className="grid gap-3">
-              <Skeleton className="h-28 bg-zinc-900/50" />
-              <Skeleton className="h-28 bg-zinc-900/50" />
+              <Skeleton className="h-28" />
+              <Skeleton className="h-28" />
             </div>
           )}
           {labsQuery.isError && <ApiErrorAlert error={labsQuery.error} />}
@@ -141,27 +139,29 @@ export function LecturerClassDetailView({
         </TabsContent>
 
         <TabsContent value="members">
-          {membersQuery.isLoading && (
-            <Skeleton className="h-64 bg-zinc-900/50" />
-          )}
-          {membersQuery.isError && (
-            <ApiErrorAlert error={membersQuery.error} />
-          )}
+          {membersQuery.isLoading && <Skeleton className="h-64" />}
+          {membersQuery.isError && <ApiErrorAlert error={membersQuery.error} />}
           {membersQuery.data && membersQuery.data.items.length > 0 && (
             <div className="overflow-hidden rounded-xl border border-border/60 bg-card/45 shadow-xs">
               <Table>
                 <TableHeader>
-                  <TableRow className="border-border/80 bg-zinc-950/20 hover:bg-transparent">
-                    <TableHead className="font-semibold text-muted-foreground">Student</TableHead>
-                    <TableHead className="font-semibold text-muted-foreground">Email</TableHead>
-                    <TableHead className="font-semibold text-muted-foreground">Joined</TableHead>
+                  <TableRow className="bg-muted/45 hover:bg-muted/45">
+                    <TableHead className="font-semibold text-muted-foreground">
+                      Student
+                    </TableHead>
+                    <TableHead className="font-semibold text-muted-foreground">
+                      Email
+                    </TableHead>
+                    <TableHead className="font-semibold text-muted-foreground">
+                      Joined
+                    </TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {membersQuery.data.items.map((member) => (
                     <TableRow
                       key={member.id}
-                      className="border-border/50 hover:bg-zinc-800/45 transition-colors"
+                      className="transition-colors hover:bg-muted/50"
                     >
                       <TableCell className="font-semibold text-foreground">
                         {member.studentName ?? member.studentId}

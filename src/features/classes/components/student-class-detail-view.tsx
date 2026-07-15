@@ -5,9 +5,7 @@ import { PageHeader } from "@/components/layout/dashboard-shell";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ClassEmptyState } from "@/features/classes/components/class-empty-state";
 import { LabCard } from "@/features/classes/components/lab-card";
-import {
-  formatDateTime,
-} from "@/features/classes/components/formatters";
+import { formatDateTime } from "@/features/classes/components/formatters";
 import {
   useClassDetail,
   useClassLabs,
@@ -26,8 +24,8 @@ export function StudentClassDetailView({
   if (classQuery.isLoading) {
     return (
       <div className="flex max-w-6xl flex-col gap-6">
-        <Skeleton className="h-24 bg-zinc-900" />
-        <Skeleton className="h-72 bg-zinc-900" />
+        <Skeleton className="h-24" />
+        <Skeleton className="h-72" />
       </div>
     );
   }
@@ -55,27 +53,27 @@ export function StudentClassDetailView({
         }
       />
 
-      <div className="rounded-lg border border-zinc-800/70 bg-zinc-900/35 p-5">
-        <p className="font-mono text-[11px] uppercase tracking-wider text-zinc-500">
+      <div className="rounded-xl border border-border bg-card p-5 shadow-sm">
+        <p className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
           Last updated
         </p>
-        <p className="mt-1 text-sm text-zinc-200">
+        <p className="mt-1 text-sm text-foreground">
           {formatDateTime(classQuery.data.updatedAt)}
         </p>
       </div>
 
       <section className="space-y-4">
         <div>
-          <h2 className="text-base font-medium text-zinc-100">Active labs</h2>
-          <p className="mt-1 text-sm text-zinc-500">
+          <h2 className="text-base font-bold text-foreground">Active labs</h2>
+          <p className="mt-1 text-sm text-muted-foreground">
             Only active labs are shown to students.
           </p>
         </div>
 
         {labsQuery.isLoading && (
           <div className="grid gap-3">
-            <Skeleton className="h-28 bg-zinc-900" />
-            <Skeleton className="h-28 bg-zinc-900" />
+            <Skeleton className="h-28" />
+            <Skeleton className="h-28" />
           </div>
         )}
         {labsQuery.isError && <ApiErrorAlert error={labsQuery.error} />}

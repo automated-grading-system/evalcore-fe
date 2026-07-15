@@ -9,9 +9,7 @@ import { PageHeader } from "@/components/layout/dashboard-shell";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import {
-  formatDateTime,
-} from "@/features/classes/components/formatters";
+import { formatDateTime } from "@/features/classes/components/formatters";
 import { LabStatusBadge } from "@/features/classes/components/lab-status-badge";
 import {
   useCollectionUrl,
@@ -60,8 +58,8 @@ export function LecturerLabDetailView({ labId }: LecturerLabDetailViewProps) {
   if (labQuery.isLoading) {
     return (
       <div className="flex max-w-5xl flex-col gap-6">
-        <Skeleton className="h-24 bg-zinc-900" />
-        <Skeleton className="h-72 bg-zinc-900" />
+        <Skeleton className="h-24" />
+        <Skeleton className="h-72" />
       </div>
     );
   }
@@ -120,7 +118,9 @@ export function LecturerLabDetailView({ labId }: LecturerLabDetailViewProps) {
 
       <Card className="border-border/60 bg-card/60 shadow-sm">
         <CardHeader>
-          <CardTitle className="text-lg font-semibold tracking-tight">Lab assets</CardTitle>
+          <CardTitle className="text-lg font-semibold tracking-tight">
+            Lab assets
+          </CardTitle>
         </CardHeader>
         <CardContent className="flex flex-col gap-3 sm:flex-row">
           <Button
@@ -144,9 +144,11 @@ export function LecturerLabDetailView({ labId }: LecturerLabDetailViewProps) {
         </CardContent>
       </Card>
 
-      <Card className="border-border/60 bg-zinc-950/40">
+      <Card className="bg-muted/20">
         <CardHeader>
-          <CardTitle className="text-lg font-semibold tracking-tight">Technical object keys</CardTitle>
+          <CardTitle className="text-lg font-semibold tracking-tight">
+            Technical object keys
+          </CardTitle>
         </CardHeader>
         <CardContent className="grid gap-4">
           <div>

@@ -12,13 +12,9 @@ interface LabCardProps {
   actionLabel?: string;
 }
 
-export function LabCard({
-  lab,
-  href,
-  actionLabel = "Open lab",
-}: LabCardProps) {
+export function LabCard({ lab, href, actionLabel = "Open lab" }: LabCardProps) {
   return (
-    <Card className="border-border/60 bg-card/60 shadow-xs hover:border-border/100 hover:bg-card/85 transition-all duration-200">
+    <Card className="group border-border/80 bg-card shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/25 hover:shadow-md">
       <CardContent className="flex flex-col gap-4 p-5 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
@@ -30,10 +26,10 @@ export function LabCard({
             </Link>
             <LabStatusBadge status={lab.status} />
           </div>
-          <p className="mt-2 line-clamp-2 max-w-2xl text-sm leading-relaxed text-zinc-400">
+          <p className="mt-2 line-clamp-2 max-w-2xl text-sm leading-relaxed text-muted-foreground">
             {lab.description ?? "No description provided."}
           </p>
-          <p className="mt-4 text-xs text-zinc-500">
+          <p className="mt-4 text-xs text-muted-foreground">
             Deadline {formatDateTime(lab.deadline)}
           </p>
         </div>
