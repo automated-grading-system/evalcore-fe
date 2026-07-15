@@ -126,6 +126,14 @@ function formatStepName(value: string | null | undefined): string {
   return value.replaceAll("_", " ").replaceAll("-", " ");
 }
 
+function explainEvaluationError(errorCode: string | null | undefined) {
+  if (errorCode === "APP_READINESS_FAILED") {
+    return "The submitted app did not become healthy before the sandbox startup window. Review the readiness and container logs below.";
+  }
+
+  return null;
+}
+
 function shortId(value: string): string {
   return value.length > 16 ? `${value.slice(0, 8)}…${value.slice(-4)}` : value;
 }
@@ -415,6 +423,8 @@ function SelectedEvaluationDetails({
   isLoading: boolean;
   error: unknown;
 }) {
+  const errorExplanation = explainEvaluationError(evaluation?.errorCode);
+
   return (
     <Card className="min-w-0">
       <CardHeader>
@@ -453,6 +463,11 @@ function SelectedEvaluationDetails({
             ) : null}
             {evaluation.errorMessage ? (
               <p className="mt-1 leading-5">{evaluation.errorMessage}</p>
+            ) : null}
+            {errorExplanation ? (
+              <p className="mt-2 border-t border-destructive/15 pt-2 leading-5 text-foreground/80">
+                {errorExplanation}
+              </p>
             ) : null}
           </div>
         ) : null}
@@ -560,79 +575,96 @@ function RecentEvaluationsTable({
               </TableRow>
             </TableHeader>
             <TableBody>
-              {items.map((item) => (
-                <TableRow
-                  key={item.evaluationId}
-                  data-state={
-                    selectedEvaluationId === item.evaluationId
-                      ? "selected"
-                      : undefined
-                  }
-                >
-                  <TableCell>
-                    <span
-                      className="font-mono text-xs font-semibold"
-                      title={item.studentId}
-                    >
-                      {shortId(item.studentId)}
-                    </span>
-                  </TableCell>
-                  <TableCell className="font-medium tabular-nums">
-                    {item.attemptNo}
-                  </TableCell>
-                  <TableCell>
-                    <div className="space-y-1">
-                      <EvaluationStatusBadge status={item.status} />
-                      {item.errorCode ? (
-                        <p
-                          className="max-w-36 truncate font-mono text-[10px] text-destructive"
-                          title={item.errorCode}
-                        >
-                          {item.errorCode}
+              {items.map((item) => {
+                const hasFailed = ["failed", "error"].includes(item.status);
+                return (
+                  <TableRow
+                    key={item.evaluationId}
+                    className={cn(
+                      hasFailed &&
+                        "border-l-2 border-l-destructive bg-destructive/5 hover:bg-destructive/10",
+                    )}
+                    data-state={
+                      selectedEvaluationId === item.evaluationId
+                        ? "selected"
+                        : undefined
+                    }
+                  >
+                    <TableCell>
+                      <span
+                        className="font-mono text-xs font-semibold"
+                        title={item.studentId}
+                      >
+                        {shortId(item.studentId)}
+                      </span>
+                    </TableCell>
+                    <TableCell className="font-medium tabular-nums">
+                      {item.attemptNo}
+                    </TableCell>
+                    <TableCell className="max-w-56 whitespace-normal">
+                      <div className="space-y-1.5">
+                        <EvaluationStatusBadge status={item.status} />
+                        {item.errorCode ? (
+                          <p
+                            className="truncate font-mono text-[10px] font-semibold text-destructive"
+                            title={item.errorCode}
+                          >
+                            {item.errorCode}
+                          </p>
+                        ) : null}
+                        {item.errorMessage ? (
+                          <p
+                            className="line-clamp-2 text-[11px] leading-4 text-destructive"
+                            title={item.errorMessage}
+                          >
+                            {item.errorMessage}
+                          </p>
+                        ) : null}
+                      </div>
+                    </TableCell>
+                    <TableCell className="max-w-52 whitespace-normal">
+                      <p
+                        className="truncate text-sm capitalize"
+                        title={item.currentStepName ?? undefined}
+                      >
+                        {item.currentStepName
+                          ? formatStepName(item.currentStepName)
+                          : item.status === "queued"
+                            ? "Waiting for runner"
+                            : "—"}
+                      </p>
+                      {item.currentStepStatus ? (
+                        <p className="mt-0.5 text-[11px] capitalize text-muted-foreground">
+                          {formatStepName(item.currentStepStatus)}
                         </p>
                       ) : null}
-                    </div>
-                  </TableCell>
-                  <TableCell className="max-w-52 whitespace-normal">
-                    <p
-                      className="truncate text-sm capitalize"
-                      title={item.currentStepName ?? undefined}
-                    >
-                      {item.currentStepName
-                        ? formatStepName(item.currentStepName)
-                        : item.status === "queued"
-                          ? "Waiting for runner"
-                          : "—"}
-                    </p>
-                    {item.currentStepStatus ? (
-                      <p className="mt-0.5 text-[11px] capitalize text-muted-foreground">
-                        {formatStepName(item.currentStepStatus)}
-                      </p>
-                    ) : null}
-                  </TableCell>
-                  <TableCell className="font-medium tabular-nums">
-                    {item.score === null ? "—" : formatNumber(item.score)}
-                  </TableCell>
-                  <TableCell className="text-xs text-muted-foreground tabular-nums">
-                    {formatDuration(item.startedAt, item.completedAt)}
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <Button
-                      type="button"
-                      size="sm"
-                      variant={
-                        selectedEvaluationId === item.evaluationId
-                          ? "secondary"
-                          : "outline"
-                      }
-                      aria-pressed={selectedEvaluationId === item.evaluationId}
-                      onClick={() => onSelect(item.evaluationId)}
-                    >
-                      Inspect
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
+                    </TableCell>
+                    <TableCell className="font-medium tabular-nums">
+                      {item.score === null ? "—" : formatNumber(item.score)}
+                    </TableCell>
+                    <TableCell className="text-xs text-muted-foreground tabular-nums">
+                      {formatDuration(item.startedAt, item.completedAt)}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant={
+                          selectedEvaluationId === item.evaluationId
+                            ? "secondary"
+                            : "outline"
+                        }
+                        aria-pressed={
+                          selectedEvaluationId === item.evaluationId
+                        }
+                        onClick={() => onSelect(item.evaluationId)}
+                      >
+                        Inspect
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
             </TableBody>
           </Table>
         )}

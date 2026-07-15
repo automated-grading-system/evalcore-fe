@@ -17,7 +17,7 @@ const STATUS_TONES: Record<string, StatusTone> = {
   queued: "info",
   running: "info",
   passed: "success",
-  failed: "warning",
+  failed: "danger",
   error: "danger",
 };
 
