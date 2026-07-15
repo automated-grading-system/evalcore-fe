@@ -7,7 +7,7 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-sans);
+  --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
   --font-heading: var(--font-sans);
   --color-sidebar-ring: var(--sidebar-ring);
@@ -27,6 +27,9 @@
   --color-input: var(--input);
   --color-border: var(--border);
   --color-destructive: var(--destructive);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-info: var(--info);
   --color-accent-foreground: var(--accent-foreground);
   --color-accent: var(--accent);
   --color-muted-foreground: var(--muted-foreground);
@@ -49,72 +52,80 @@
 }
 
 :root {
-  --background: #09090b;
-  --foreground: #fafafa;
-  --card: #111217;
-  --card-foreground: #fafafa;
-  --popover: #111217;
-  --popover-foreground: #fafafa;
-  --primary: #6366f1;
+  color-scheme: light;
+  --background: #f6f7fb;
+  --foreground: #171923;
+  --card: #ffffff;
+  --card-foreground: #171923;
+  --popover: #ffffff;
+  --popover-foreground: #171923;
+  --primary: #4f46e5;
   --primary-foreground: #ffffff;
-  --secondary: #1e1e24;
-  --secondary-foreground: #fafafa;
-  --muted: #1e1e24;
-  --muted-foreground: #a1a1aa;
-  --accent: #1e1e24;
-  --accent-foreground: #fafafa;
-  --destructive: #ef4444;
-  --border: rgba(255, 255, 255, 0.1);
-  --input: rgba(255, 255, 255, 0.08);
-  --ring: #6366f1;
-  --chart-1: #6366f1;
+  --secondary: #eef0f6;
+  --secondary-foreground: #272a35;
+  --muted: #eef0f6;
+  --muted-foreground: #626777;
+  --accent: #e9e8ff;
+  --accent-foreground: #3730a3;
+  --destructive: #dc2626;
+  --success: #16845b;
+  --warning: #b45f06;
+  --info: #2563eb;
+  --border: #dde0e9;
+  --input: #d6d9e4;
+  --ring: #4f46e5;
+  --chart-1: #4f46e5;
   --chart-2: #8b5cf6;
   --chart-3: #ec4899;
   --chart-4: #3b82f6;
   --chart-5: #10b981;
   --radius: 0.625rem;
-  --sidebar: #09090b;
-  --sidebar-foreground: #fafafa;
-  --sidebar-primary: #6366f1;
+  --sidebar: #ffffff;
+  --sidebar-foreground: #252735;
+  --sidebar-primary: #4f46e5;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #1e1e24;
-  --sidebar-accent-foreground: #fafafa;
-  --sidebar-border: rgba(255, 255, 255, 0.1);
-  --sidebar-ring: #6366f1;
+  --sidebar-accent: #eeedff;
+  --sidebar-accent-foreground: #3730a3;
+  --sidebar-border: #e5e7ee;
+  --sidebar-ring: #4f46e5;
 }
 
 .dark {
-  --background: #09090b;
-  --foreground: #fafafa;
-  --card: #111217;
-  --card-foreground: #fafafa;
-  --popover: #111217;
-  --popover-foreground: #fafafa;
-  --primary: #6366f1;
+  color-scheme: dark;
+  --background: #0b0d12;
+  --foreground: #f4f4f6;
+  --card: #12151d;
+  --card-foreground: #f4f4f6;
+  --popover: #151821;
+  --popover-foreground: #f4f4f6;
+  --primary: #818cf8;
   --primary-foreground: #ffffff;
-  --secondary: #1e1e24;
-  --secondary-foreground: #fafafa;
-  --muted: #1e1e24;
-  --muted-foreground: #a1a1aa;
-  --accent: #1e1e24;
-  --accent-foreground: #fafafa;
-  --destructive: #ef4444;
-  --border: rgba(255, 255, 255, 0.1);
-  --input: rgba(255, 255, 255, 0.08);
-  --ring: #6366f1;
+  --secondary: #1d212b;
+  --secondary-foreground: #f4f4f6;
+  --muted: #1b1f29;
+  --muted-foreground: #9ca2b0;
+  --accent: #25254a;
+  --accent-foreground: #dfe1ff;
+  --destructive: #f87171;
+  --success: #4ade80;
+  --warning: #fbbf24;
+  --info: #60a5fa;
+  --border: #292d38;
+  --input: #343946;
+  --ring: #818cf8;
   --chart-1: #6366f1;
   --chart-2: #8b5cf6;
   --chart-3: #ec4899;
   --chart-4: #3b82f6;
   --chart-5: #10b981;
-  --sidebar: #09090b;
-  --sidebar-foreground: #fafafa;
-  --sidebar-primary: #6366f1;
+  --sidebar: #0e1118;
+  --sidebar-foreground: #f4f4f6;
+  --sidebar-primary: #818cf8;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #1e1e24;
-  --sidebar-accent-foreground: #fafafa;
-  --sidebar-border: rgba(255, 255, 255, 0.1);
-  --sidebar-ring: #6366f1;
+  --sidebar-accent: #20233a;
+  --sidebar-accent-foreground: #e4e5ff;
+  --sidebar-border: #272b35;
+  --sidebar-ring: #818cf8;
 }
 
 @layer base {
@@ -122,9 +133,28 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground selection:bg-primary/20 selection:text-foreground;
+    background-image: radial-gradient(
+      circle at 50% 0%,
+      color-mix(in srgb, var(--primary) 5%, transparent),
+      transparent 32rem
+    );
+    background-attachment: fixed;
   }
   html {
-    @apply font-sans;
+    font-family: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  }
+  button,
+  a,
+  input,
+  textarea,
+  select {
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60 focus-visible:ring-offset-2 focus-visible:ring-offset-background;
+  }
+}
+
+@layer utilities {
+  .surface-panel {
+    @apply rounded-xl border border-border/80 bg-card shadow-[0_1px_2px_rgba(15,23,42,0.04)];
   }
 }
